@@ -1,13 +1,16 @@
 {
   "name": "Soviet Training OS",
-  "short_name": "Training OS",
-  "description": "Offline local-first tactical training coach.",
-  "start_url": "./",
-  "scope": "./",
+  "short_name": "STO",
+  "start_url": "/training/",
+  "scope": "/training/",
   "display": "standalone",
-  "background_color": "#070707",
-  "theme_color": "#111827",
+  "background_color": "#121212",
+  "theme_color": "#cc0000",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
   ]
 }
