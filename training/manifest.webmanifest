@@ -1,8 +1,8 @@
 {
   "name": "Soviet Training OS",
   "short_name": "STO",
-  "start_url": "/training/",
-  "scope": "/training/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#cc0000",
@@ -10,7 +10,8 @@
     {
       "src": "icon.svg",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ]
 }
