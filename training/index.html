@@ -1,35 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#111827">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Training OS">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Soviet Training OS</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" href="icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.svg">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Soviet Training OS</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <meta name="theme-color" content="#121212">
 </head>
 <body>
-  <header class="top">
-    <div class="badge">☭ LOCAL-FIRST · OFFLINE · PHONE APP</div>
-    <h1>Soviet Training OS</h1>
-    <p id="subtitle">Fast tactical training dashboard.</p>
-  </header>
+    <div id="app">
+        <header>
+            <h1>STO v3</h1>
+        </header>
 
-  <main id="app" aria-live="polite"></main>
+        <main id="content">
+            <!-- Today Screen -->
+            <section id="view-today" class="view active">
+                <h2>Suggested Session</h2>
+                <div id="today-suggestion"></div>
+            </section>
 
-  <nav class="nav" aria-label="Primary">
-    <button data-view="today">🏠<span>Today</span></button>
-    <button data-view="log">📝<span>Log</span></button>
-    <button data-view="status">📊<span>Status</span></button>
-    <button data-view="history">🕘<span>History</span></button>
-    <button data-view="rules">📜<span>Rules</span></button>
-  </nav>
+            <!-- Log Screen -->
+            <section id="view-log" class="view">
+                <h2>Log Session</h2>
+                <form id="log-form"></form>
+                <button id="save-session-btn" class="btn primary">Save Session</button>
+            </section>
 
-  <script src="app.js" defer></script>
+            <!-- Status Screen -->
+            <section id="view-status" class="view">
+                <h2>Status & Telemetry</h2>
+                <div id="status-content"></div>
+                <div class="actions">
+                    <button id="export-db-btn" class="btn">Export Full DB</button>
+                    <button id="export-gpt-btn" class="btn">Export ChatGPT Status</button>
+                    <textarea id="import-data" placeholder="Paste JSON here..."></textarea>
+                    <button id="import-db-btn" class="btn danger">Import JSON</button>
+                </div>
+            </section>
+
+            <!-- History Screen -->
+            <section id="view-history" class="view">
+                <h2>Last 7 Sessions</h2>
+                <div id="history-list"></div>
+            </section>
+
+            <!-- Rules Screen -->
+            <section id="view-rules" class="view">
+                <h2>Rules & Notes</h2>
+                <pre id="rules-text"></pre>
+                <h3>Update Rule / Research Note</h3>
+                <select id="deprioritise-select"></select>
+                <button id="toggle-deprioritise-btn" class="btn">Toggle Deprioritise</button>
+                <textarea id="research-note" placeholder="Paste research or note..."></textarea>
+                <button id="save-note-btn" class="btn">Save Note</button>
+            </section>
+        </main>
+
+        <nav>
+            <button data-view="today" class="active">Today</button>
+            <button data-view="log">Log</button>
+            <button data-view="status">Status</button>
+            <button data-view="history">History</button>
+            <button data-view="rules">Rules</button>
+        </nav>
+    </div>
+    <script src="app.js"></script>
 </body>
 </html>
