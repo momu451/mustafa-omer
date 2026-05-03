@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reset Training OS Cache</title>
+  <style>
+    body{margin:0;background:#0b0b0b;color:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding:24px;line-height:1.35}
+    .card{background:#1a1a1a;border:1px solid #333;border-radius:18px;padding:18px;margin:18px auto;max-width:720px}
+    h1{font-size:28px;margin:0 0 10px}p{color:#d1d5db}.btn{display:block;width:100%;min-height:64px;border:0;border-radius:16px;background:linear-gradient(135deg,#cc0000,#7f0000);color:#fff;font-weight:900;font-size:18px;margin-top:14px}.small{font-size:13px;color:#a0a0a0}code{background:#111;padding:2px 5px;border-radius:5px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Reset Training OS Cache</h1>
+    <p>This clears the old service-worker/cache that can trap the stale <strong>Suggested Session / GRIP</strong> screen.</p>
+    <p>It does <strong>not</strong> wipe your workout localStorage.</p>
+    <button class="btn" id="resetBtn">RESET CACHE & OPEN FRESH APP</button>
+    <p class="small" id="status">Ready.</p>
+  </div>
+<script>
+async function resetAndGo(){
+  const status=document.getElementById('status');
+  status.textContent='Clearing caches and unregistering old service workers...';
+  try{
+    if('serviceWorker' in navigator){
+      const regs=await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r=>r.unregister()));
+    }
+    if('caches' in window){
+      const keys=await caches.keys();
+      await Promise.all(keys.map(k=>caches.delete(k)));
+    }
+    status.textContent='Done. Opening fresh app...';
+  }catch(e){
+    status.textContent='Reset attempted. Opening app anyway...';
+  }
+  setTimeout(()=>{ window.location.href='./?v=20260503-ui3-reset'; },500);
+}
+document.getElementById('resetBtn').addEventListener('click',resetAndGo);
+</script>
+</body>
+</html>
