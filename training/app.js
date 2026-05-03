@@ -197,5 +197,9 @@ document.getElementById('import-db-btn').addEventListener('click', () => {
     } catch(e) { alert("Invalid JSON."); }
 });
 
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+}
+
 // Init
 renderActiveView('view-today');
