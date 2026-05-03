@@ -1,9 +1,10 @@
-const CACHE_NAME = 'sto-v3-cache-2';
+const CACHE_NAME = 'sto-v3-cache-3';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './history.json',
   './manifest.webmanifest',
   './icon.svg'
 ];
