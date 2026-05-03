@@ -1,11 +1,11 @@
-const CACHE_NAME = 'sto-v3-cache-5-ui3';
+const CACHE_NAME = 'sto-v3-cache-6-ui4';
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css?v=20260503-ui3',
-  './app.js?v=20260503-ui3',
+  './style.css?v=20260503-ui4',
+  './app.js?v=20260503-ui4',
   './history.json',
-  './manifest.webmanifest?v=20260503-ui3',
+  './manifest.webmanifest?v=20260503-ui4',
   './icon.svg'
 ];
 
