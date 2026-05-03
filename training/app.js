@@ -62,7 +62,7 @@ const EXERCISES = [
 ].map(x => ({ name:x[0], cat:x[1], deprioritised:!!x[2] }));
 
 const defaultData = {
-  version: 5,
+  version: 6,
   archiveLoaded: false,
   rules: RULES,
   dynamicState: structuredClone(POST_SATURDAY_STATE),
@@ -77,24 +77,16 @@ let db = loadDB();
 function loadDB() {
   try {
     const raw = localStorage.getItem(DB_KEY);
-    if (!raw) return structuredClone(defaultData);
-    return migrate(JSON.parse(raw));
+    return raw ? migrate(JSON.parse(raw)) : structuredClone(defaultData);
   } catch (_) {
     return structuredClone(defaultData);
   }
 }
 
-function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
-function todayISO() { return new Date().toISOString().split('T')[0]; }
-function dayDiff(dateStr) { if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return 999; return Math.floor((new Date(todayISO()) - new Date(dateStr)) / 86400000); }
-function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function byDateDesc(a,b) { return String(b.date || '').localeCompare(String(a.date || '')); }
-
 function migrate(x) {
-  x.version = 5;
+  x.version = 6;
   x.rules = x.rules || RULES;
   x.dynamicState = Object.assign(structuredClone(defaultData.dynamicState), x.dynamicState || {});
-  x.dynamicState.pain = Object.assign(structuredClone(POST_SATURDAY_STATE.pain), x.dynamicState.pain || {});
   x.dynamicState.deadliftMap = structuredClone(POST_SATURDAY_STATE.deadliftMap);
   x.dynamicState.lastUsedPerCategory = Object.assign(structuredClone(POST_SATURDAY_STATE.lastUsedPerCategory), x.dynamicState.lastUsedPerCategory || {});
   applyPostSaturdayReality(x);
@@ -103,24 +95,24 @@ function migrate(x) {
   injectSaturdaySession(x);
   x.notes = x.notes || '';
   x.research = x.research || [];
-  saveAfterMigration(x);
+  try { localStorage.setItem(DB_KEY, JSON.stringify(x)); } catch (_) {}
   return x;
 }
 
-function saveAfterMigration(x) { try { localStorage.setItem(DB_KEY, JSON.stringify(x)); } catch (_) {} }
-
 function applyPostSaturdayReality(x) {
-  x.dynamicState.rowCap = true;
-  x.dynamicState.rowCapEnd = '2026-05-04';
-  x.dynamicState.rowBreaches = 3;
-  x.dynamicState.gripFlag = true;
-  x.dynamicState.lastQuality = 'width';
-  x.dynamicState.hingeLast = '2026-04-30';
-  x.dynamicState.neckLast = '2026-05-02';
-  x.dynamicState.sledRpe8 = '2026-05-02';
-  x.dynamicState.pain = { er: 2.0, el: 0.5, hq: 0, costal: 0 };
-  x.dynamicState.lastUsedPerCategory = structuredClone(POST_SATURDAY_STATE.lastUsedPerCategory);
-  x.dynamicState.deadliftMap = structuredClone(POST_SATURDAY_STATE.deadliftMap);
+  Object.assign(x.dynamicState, {
+    rowCap: true,
+    rowCapEnd: '2026-05-04',
+    rowBreaches: 3,
+    gripFlag: true,
+    lastQuality: 'width',
+    hingeLast: '2026-04-30',
+    neckLast: '2026-05-02',
+    sledRpe8: '2026-05-02',
+    pain: { er: 2.0, el: 0.5, hq: 0, costal: 0 },
+    lastUsedPerCategory: structuredClone(POST_SATURDAY_STATE.lastUsedPerCategory),
+    deadliftMap: structuredClone(POST_SATURDAY_STATE.deadliftMap)
+  });
 }
 
 function mergeExerciseCatalogue(existing) {
@@ -129,19 +121,24 @@ function mergeExerciseCatalogue(existing) {
   return [...map.values()];
 }
 
+function saveDB() { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function todayISO() { return new Date().toISOString().split('T')[0]; }
+function displayDate() { return new Date().toLocaleDateString(undefined, { weekday:'long', day:'2-digit', month:'short', year:'numeric' }); }
+function dayDiff(dateStr) { if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return 999; return Math.floor((new Date(todayISO()) - new Date(dateStr)) / 86400000); }
+function esc(v) { return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function byDateDesc(a,b) { return String(b.date || '').localeCompare(String(a.date || '')); }
+
+function normaliseSession(s) {
+  if (!s) return null;
+  if (s.d || s.s || s.e) return { date:s.d || '', primary:s.q || inferQuality(s.e || [], s.s || ''), quality:s.q || inferQuality(s.e || [], s.s || ''), summary:s.s || '', exercises:s.e || [], source:'archive' };
+  return { date:s.date || '', primary:s.primary || s.quality || inferQuality(s.exercises || [], s.summary || ''), quality:s.quality || s.primary || inferQuality(s.exercises || [], s.summary || ''), summary:s.summary || '', exercises:s.exercises || [], source:s.source || 'local' };
+}
+
 function injectSaturdaySession(target) {
   target.sessions = target.sessions || [];
   const exists = target.sessions.some(s => s.date === '2026-05-02' && String(s.summary || '').includes('V-grip pulldown 55x5'));
   if (!exists) target.sessions.unshift(structuredClone(SATURDAY_SESSION));
   target.sessions = target.sessions.map(normaliseSession).filter(Boolean).sort(byDateDesc);
-}
-
-function normaliseSession(s) {
-  if (!s) return null;
-  if (s.d || s.s || s.e) {
-    return { date:s.d || '', primary:s.q || inferQuality(s.e || [], s.s || ''), quality:s.q || inferQuality(s.e || [], s.s || ''), summary:s.s || '', exercises:s.e || [], source:'archive' };
-  }
-  return { date:s.date || '', primary:s.primary || s.quality || inferQuality(s.exercises || [], s.summary || ''), quality:s.quality || s.primary || inferQuality(s.exercises || [], s.summary || ''), summary:s.summary || '', exercises:s.exercises || [], source:s.source || 'local' };
 }
 
 function mergeSessions(incoming) {
@@ -169,13 +166,8 @@ async function loadArchive() {
   } catch (_) {}
 }
 
-function sessionExercisesText(session) {
-  return (session.exercises || []).map(e => Array.isArray(e) ? e.join(' ') : String(e)).join(' ');
-}
-
-function chainText(session) {
-  return `${session.primary || ''} ${session.quality || ''} ${session.summary || ''} ${sessionExercisesText(session)}`.toLowerCase();
-}
+function sessionExercisesText(session) { return (session.exercises || []).map(e => Array.isArray(e) ? e.join(' ') : String(e)).join(' '); }
+function chainText(session) { return `${session.primary || ''} ${session.quality || ''} ${session.summary || ''} ${sessionExercisesText(session)}`.toLowerCase(); }
 
 function hasChain(session, chain) {
   const t = chainText(session);
@@ -217,8 +209,39 @@ function deficitReport() {
   }).sort((a,b) => b.deficit - a.deficit);
 }
 
-function getExerciseByName(name) {
-  return db.exercises.find(e => e.name.toLowerCase() === name.toLowerCase()) || { name, cat:'support' };
+function getExerciseByName(name) { return db.exercises.find(e => e.name.toLowerCase() === name.toLowerCase()) || { name, cat:'support' }; }
+function rowCapActive() { return db.dynamicState.rowCap && todayISO() <= db.dynamicState.rowCapEnd; }
+function lowerBlocked() { return dayDiff(db.dynamicState.sledRpe8) <= 1; }
+function hingeBlocked() { return lowerBlocked() || dayDiff(latestChainDate('hinge')) < 3; }
+function gripRecentlyHit() { return dayDiff(latestChainDate('grip')) <= 1; }
+function yokeRecentlyHit() { return dayDiff(latestChainDate('yoke')) <= 1; }
+
+function sundayPressSession() {
+  const slots = [
+    prescribe(getExerciseByName('Machine incline chest press'), { sets:'3', reps:'6', load:'50-55kg operating zone', rir:'2-3', reason:'MAIN ANCHOR: protected upper-chest press. Width/grip/arms/neck/GPP were hit Saturday.' }),
+    prescribe(getExerciseByName('Machine chest press'), { sets:'3', reps:'8', load:'controlled machine load', rir:'2-3', reason:'SECONDARY PRESS: extra armour volume without barbell bench/deep dip risk.' }),
+    prescribe(getExerciseByName('Smith calf raise on step'), { sets:'4', reps:'10-15', load:'state total + plates', rir:'1-2', reason:'SUPPORT: calves need feeding. Inner-calf cue, full ROM.' }),
+    prescribe(getExerciseByName('Elbow-supported leg raises'), { sets:'3', reps:'12-15', load:'BW', rir:'2-3', reason:'CORE: posterior tilt, no floor work.' })
+  ];
+  return { date:todayISO(), primary:'press', deficits:deficitReport(), exercises:slots, blocks:['No rows — row cap active until 04/05.','No width, grip, arms, neck or GPP — all hit Saturday.','No hinge/lower/sled — Saturday sled reached RPE 9.'] };
+}
+
+function generateSuggestion() {
+  if (todayISO() === '2026-05-03') return sundayPressSession();
+  const deficits = deficitReport();
+  let primary = '';
+  if (dayDiff(latestChainDate('hinge')) >= 14 && !hingeBlocked()) primary = 'hinge';
+  else if (db.dynamicState.gripFlag && !gripRecentlyHit()) primary = 'grip';
+  else primary = (deficits.find(d => d.chain !== db.dynamicState.lastQuality && !(d.chain === 'hinge' && hingeBlocked()) && !(d.chain === 'lower' && lowerBlocked())) || deficits[0]).chain;
+  let cats = ({hinge:['hinge','grip','width','core','yoke'],grip:['grip','width','thickness','core','yoke'],press:['press','calves','core'],width:['width','rear','arms','core','yoke'],thickness:['thickness','width','rear','core','yoke'],lower:['lower','calves','core','gpp','yoke'],gpp:['gpp','core','width','grip','yoke']}[primary]) || [primary,'core','yoke','arms','gpp'];
+  if (rowCapActive()) cats = cats.filter(c => c !== 'thickness' && c !== 'rear');
+  if (lowerBlocked()) cats = cats.filter(c => c !== 'lower' && c !== 'hinge' && c !== 'gpp');
+  if (yokeRecentlyHit()) cats = cats.filter(c => c !== 'yoke');
+  if (gripRecentlyHit()) cats = cats.filter(c => c !== 'grip');
+  if (!cats.includes('core')) cats.push('core');
+  const seen = new Set();
+  const exercises = cats.map(cat => cat === 'rear' ? { name:'Face pulls', cat:'rear' } : getExerciseForCat(cat)).filter(e => e && !seen.has(e.name) && seen.add(e.name)).slice(0,5).map(e => prescribe(e));
+  return { date:todayISO(), primary, deficits, exercises, blocks:[] };
 }
 
 function getExerciseForCat(cat) {
@@ -228,68 +251,14 @@ function getExerciseForCat(cat) {
   return pool[0] || { name:`Any ${cat}`, cat };
 }
 
-function rowCapActive() { return db.dynamicState.rowCap && todayISO() <= db.dynamicState.rowCapEnd; }
-function lowerBlocked() { return dayDiff(db.dynamicState.sledRpe8) <= 1; }
-function hingeBlocked() { return lowerBlocked() || dayDiff(latestChainDate('hinge')) < 3; }
-function gripRecentlyHit() { return dayDiff(latestChainDate('grip')) <= 1; }
-function yokeRecentlyHit() { return dayDiff(latestChainDate('yoke')) <= 1; }
-
-function sundayPressSession() {
-  const slots = [
-    prescribe(getExerciseByName('Machine incline chest press'), { sets:'3', reps:'6', load:'50-55kg operating zone', rir:'2-3', reason:'Main protected press anchor. Width/grip/arms/neck/GPP were hit Saturday; press is the clean underfed chain.' }),
-    prescribe(getExerciseByName('Machine chest press'), { sets:'3', reps:'8', load:'controlled machine load', rir:'2-3', reason:'Secondary press volume without barbell bench or deep dip risk.' }),
-    prescribe(getExerciseByName('Smith calf raise on step'), { sets:'4', reps:'10-15', load:'state total + plates', rir:'1-2', reason:'Calves support slot; inner-calf cue, controlled full ROM.' }),
-    prescribe(getExerciseByName('Elbow-supported leg raises'), { sets:'3', reps:'12-15', load:'BW', rir:'2-3', reason:'Core rotation; posterior tilt, no floor work.' })
-  ];
-  return { date:todayISO(), primary:'press', deficits:deficitReport(), exercises:slots, forcedSunday:true, blocks:['No rows: row cap active until 2026-05-04.','No width/grip/arms/neck/GPP: all hit Saturday 2026-05-02.','No hinge/lower/sled: Saturday sled reached RPE 9.'] };
-}
-
-function generateSuggestion() {
-  if (todayISO() === '2026-05-03') return sundayPressSession();
-
-  const deficits = deficitReport();
-  let primary = '';
-  if (dayDiff(latestChainDate('hinge')) >= 14 && !hingeBlocked()) primary = 'hinge';
-  else if (db.dynamicState.gripFlag && !gripRecentlyHit()) primary = 'grip';
-  else primary = (deficits.find(d => d.chain !== db.dynamicState.lastQuality && !(d.chain === 'hinge' && hingeBlocked()) && !(d.chain === 'lower' && lowerBlocked())) || deficits[0]).chain;
-
-  const catsByPrimary = {
-    hinge:['hinge','grip','width','core','yoke'],
-    grip:['grip','width','thickness','core','yoke'],
-    press:['press','calves','core'],
-    width:['width','rear','arms','core','yoke'],
-    thickness:['thickness','width','rear','core','yoke'],
-    lower:['lower','calves','core','gpp','yoke'],
-    gpp:['gpp','core','width','grip','yoke']
-  };
-  let cats = catsByPrimary[primary] || [primary,'core','yoke','arms','gpp'];
-  if (rowCapActive()) cats = cats.filter(c => c !== 'thickness' && c !== 'rear');
-  if (lowerBlocked()) cats = cats.filter(c => c !== 'lower' && c !== 'hinge' && c !== 'gpp');
-  if (yokeRecentlyHit()) cats = cats.filter(c => c !== 'yoke');
-  if (gripRecentlyHit()) cats = cats.filter(c => c !== 'grip');
-  if (!cats.includes('core')) cats.push('core');
-
-  const seen = new Set();
-  const exercises = cats.map(cat => cat === 'rear' ? { name:'Face pulls', cat:'rear' } : getExerciseForCat(cat))
-    .filter(e => e && !seen.has(e.name) && seen.add(e.name))
-    .slice(0,5)
-    .map(e => prescribe(e));
-  return { date:todayISO(), primary, deficits, exercises };
-}
-
 function prescribe(e, override = {}) {
-  const out = Object.assign({ name:e.name, cat:e.cat, sets:'3', reps:'8-12', load:'enter load', rir:'2-3', reason:`${e.cat} support for today.` }, override);
+  const out = Object.assign({ name:e.name, cat:e.cat, sets:'3', reps:'8-12', load:'enter load', rir:'2-3', reason:`${e.cat} support.` }, override);
   if (e.name === 'Deadlift') {
     const m = db.dynamicState.deadliftMap;
     out.sets = '3 wave sets'; out.reps = '3 / 2 / 3';
     out.load = `${m.cleanTripleTotal}kg total = ${m.cleanTripleTotal - m.barWeight}kg plates + ${m.barWeight}kg bar; ${m.cleanDoubleTotal}kg total = ${m.cleanDoubleTotal - m.barWeight}kg plates + ${m.barWeight}kg bar`;
-    out.rir = '2 technical'; out.reason = 'Hinge re-feed / go-strength. No testing above clean zone.';
-  } else if (e.cat === 'core' && !override.reps) { out.reps = e.name.includes('carry') ? '20-40m' : '12-15'; out.reason = 'Core required every session.'; }
-  else if (e.cat === 'yoke' && !override.reps) { out.reps = e.name === 'Neck raises' ? '15 front + 15 back' : '10-15'; out.reason = 'Neck/yoke priority; chin tucked.'; }
-  else if (e.cat === 'grip' && !override.reps) { out.reps = '20-40s / clean distance'; out.rir = 'stop before scap breaks'; out.reason = 'Direct grip because grip flag is active.'; }
-  else if (e.cat === 'width' && !override.reps) { out.sets = '4'; out.reps = '8-10'; out.reason = 'Lat width/scap depression carryover.'; }
-  else if (e.cat === 'thickness' && !override.reps) { out.reps = '8-10'; out.rir = rowCapActive() ? '3-4 row cap' : '2-3'; out.reason = 'Back thickness; respect row cap.'; }
-  else if (e.cat === 'gpp' && !override.reps) { out.sets = '6'; out.reps = '20-30m / short burst'; out.rir = 'RPE 7-8'; out.reason = 'Sled/GPP tactical transfer.'; }
+    out.rir = '2 technical'; out.reason = 'Hinge re-feed. No testing above clean zone.';
+  }
   return out;
 }
 
@@ -307,119 +276,89 @@ function renderActiveView(target) {
 }
 
 function renderToday() {
-  const sugg = generateSuggestion();
-  let html = `<div class="card"><h3>Primary: ${esc(sugg.primary.toUpperCase())}</h3>`;
-  html += `<p><strong>Archive:</strong> ${db.sessions.length} stored sessions${db.archiveLoaded ? '' : ' (archive not loaded yet)'}</p>`;
-  if (rowCapActive()) html += `<p style="color:var(--accent)">Row Cap Active until ${esc(db.dynamicState.rowCapEnd)}</p>`;
-  if (db.dynamicState.gripFlag) html += `<p style="color:var(--accent)">Grip flag active, but direct grip was hit Saturday; no grip today.</p>`;
-  if (sugg.blocks) sugg.blocks.forEach(b => html += `<p><small>${esc(b)}</small></p>`);
-  html += `<h3>Prescription</h3>`;
-  sugg.exercises.forEach(e => html += `<div class="card"><strong>${esc(e.name)}</strong><p>${esc(e.sets)} sets · ${esc(e.reps)} · ${esc(e.load)} · RIR/RPE ${esc(e.rir)}</p><small>${esc(e.reason)}</small></div>`);
-  html += `<h3>Last 7-10 Days Completed</h3>`;
-  recentCompleted(10).forEach(s => html += `<div class="card"><small>${esc(s.date)} · ${esc(s.quality || s.primary || '')}</small><p>${esc(s.summary)}</p></div>`);
-  html += `</div>`;
-  document.getElementById('today-suggestion').innerHTML = html;
-  buildLogForm(sugg);
+  const s = generateSuggestion();
+  const workout = s.exercises.map((e, i) => `<div class="workout-card"><div class="workout-num">${i+1}</div><div><h3>${esc(e.name)}</h3><p><strong>${esc(e.sets)} sets</strong> · ${esc(e.reps)} · ${esc(e.load)}</p><p><strong>RIR/RPE:</strong> ${esc(e.rir)}</p><small>${esc(e.reason)}</small></div></div>`).join('');
+  const blocks = (s.blocks || []).map(b => `<div class="warning-line">${esc(b)}</div>`).join('');
+  const recent = recentCompleted(10).slice(0,3).map(r => `<div class="mini-history"><strong>${esc(r.date)}</strong> · ${esc(r.quality || r.primary || '')}<br><span>${esc(r.summary)}</span></div>`).join('');
+  document.getElementById('today-suggestion').innerHTML = `
+    <section class="today-hero">
+      <div class="eyebrow">TODAY’S WORKOUT · ${esc(displayDate())}</div>
+      <h2>${esc(s.primary.toUpperCase())} SESSION</h2>
+      <p class="hero-sub">Do this. Log it. Done.</p>
+      <button class="btn primary giant" onclick="showLogNow()">LOG THIS WORKOUT</button>
+    </section>
+    <section class="card">
+      <h2>Do These ${s.exercises.length}</h2>
+      ${workout}
+    </section>
+    <section class="card">
+      <h2>Hard Blocks</h2>
+      ${blocks || '<p>No hard block notes.</p>'}
+    </section>
+    <section class="card">
+      <h2>Recent Completed</h2>
+      ${recent}
+    </section>`;
+  buildLogForm(s);
 }
 
-function buildLogForm(sugg = generateSuggestion()) {
-  let formHtml = `<input type="hidden" id="log-primary" value="${esc(sugg.primary)}">`;
-  sugg.exercises.forEach((e, i) => {
-    formHtml += `<div class="log-item"><label>${esc(e.name)}</label>
-      <input type="text" id="log-ex-${i}" data-chain="${esc(e.cat)}" placeholder="Sets x reps x load" value="${esc(e.sets + ' x ' + e.reps + ' @ ' + e.load + ' / ' + e.rir)}">
-    </div>`;
+window.showLogNow = function() {
+  document.querySelector('[data-target="view-log"]').click();
+};
+
+function buildLogForm(s = generateSuggestion()) {
+  let formHtml = `<input type="hidden" id="log-primary" value="${esc(s.primary)}">`;
+  s.exercises.forEach((e, i) => {
+    formHtml += `<div class="log-item"><label>${esc(i+1)}. ${esc(e.name)}</label><input type="text" id="log-ex-${i}" data-chain="${esc(e.cat)}" value="${esc(e.sets + ' x ' + e.reps + ' @ ' + e.load + ' / ' + e.rir)}"></div>`;
   });
-  formHtml += `<div class="log-item"><label>Session Notes</label><textarea id="log-notes"></textarea></div>`;
+  formHtml += `<div class="log-item"><label>Session Notes</label><textarea id="log-notes" placeholder="What actually happened?"></textarea></div>`;
   document.getElementById('log-form').innerHTML = formHtml;
 }
 
 function renderLog() { buildLogForm(); }
 
 function renderStatus() {
-  const s = db.dynamicState, def = deficitReport();
-  let html = `<div class="card">
-    <p><strong>Stored workouts:</strong> ${db.sessions.length}</p>
-    <p><strong>Archive loaded:</strong> ${db.archiveLoaded ? 'yes' : 'no'}</p>
-    <p><strong>Row Cap:</strong> ${rowCapActive() ? `Active to ${s.rowCapEnd}` : 'Inactive'} (Breaches: ${s.rowBreaches})</p>
-    <p><strong>Grip Flag:</strong> ${s.gripFlag}</p>
-    <p><strong>Pain:</strong> ER ${s.pain.er}, EL ${s.pain.el}, Hip/QL ${s.pain.hq}, Costal ${s.pain.costal}</p>
-    <h3>Deadlift Map</h3><p>Triple ${s.deadliftMap.cleanTripleTotal}kg total = ${s.deadliftMap.cleanTripleTotal - s.deadliftMap.barWeight}kg plates + ${s.deadliftMap.barWeight}kg bar · Double ${s.deadliftMap.cleanDoubleTotal}kg total = ${s.deadliftMap.cleanDoubleTotal - s.deadliftMap.barWeight}kg plates + ${s.deadliftMap.barWeight}kg bar · Single ${s.deadliftMap.cleanSingleTotal}kg · Breakdown ${s.deadliftMap.breakdownTotal}kg · Failed zone ${s.deadliftMap.failedZone}kg+</p>
-    <h3>Last Used</h3><pre>${esc(JSON.stringify(s.lastUsedPerCategory, null, 2))}</pre>
-    <h3>Deficits</h3>${def.map(d => `<p>${esc(d.chain)}: ${esc(d.last)} · ${d.days} days · ${d.deficit > 0 ? '<span style="color:var(--accent)">underfed</span>' : 'covered'}</p>`).join('')}
-  </div>`;
-  document.getElementById('status-content').innerHTML = html;
+  const d = db.dynamicState, def = deficitReport();
+  document.getElementById('status-content').innerHTML = `<div class="card"><p><strong>Stored workouts:</strong> ${db.sessions.length}</p><p><strong>Archive loaded:</strong> ${db.archiveLoaded ? 'yes' : 'no'}</p><p><strong>Row Cap:</strong> ${rowCapActive() ? `Active to ${d.rowCapEnd}` : 'Inactive'} · breaches ${d.rowBreaches}</p><p><strong>Grip Flag:</strong> ${d.gripFlag}</p><p><strong>Pain:</strong> ER ${d.pain.er}, EL ${d.pain.el}, Hip/QL ${d.pain.hq}, Costal ${d.pain.costal}</p><h3>Deadlift Map</h3><p>${d.deadliftMap.cleanTripleTotal}kg total = ${d.deadliftMap.cleanTripleTotal - d.deadliftMap.barWeight}kg plates + ${d.deadliftMap.barWeight}kg bar<br>${d.deadliftMap.cleanDoubleTotal}kg total = ${d.deadliftMap.cleanDoubleTotal - d.deadliftMap.barWeight}kg plates + ${d.deadliftMap.barWeight}kg bar<br>Single ${d.deadliftMap.cleanSingleTotal}kg · Breakdown ${d.deadliftMap.breakdownTotal}kg · Failed ${d.deadliftMap.failedZone}kg+</p><h3>Deficits</h3>${def.map(x => `<p>${esc(x.chain)}: ${esc(x.last)} · ${x.days} days</p>`).join('')}</div>`;
 }
 
 function renderHistory() {
-  let html = `<div class="card"><strong>${db.sessions.length} stored sessions</strong><p>Newest first. Static archive + your local logs.</p></div>`;
-  db.sessions.slice().sort(byDateDesc).forEach(s => {
-    const ex = (s.exercises || []).slice(0,12).map(e => Array.isArray(e) ? e[0] : String(e)).filter(Boolean).join(', ');
-    html += `<div class="card"><small>${esc(s.date)} · ${esc(s.quality || s.primary || '')}</small><p>${esc(s.summary)}</p>${ex ? `<small>${esc(ex)}</small>` : ''}</div>`;
-  });
-  document.getElementById('history-list').innerHTML = html;
+  document.getElementById('history-list').innerHTML = `<div class="card"><strong>${db.sessions.length} stored sessions</strong></div>` + db.sessions.slice().sort(byDateDesc).map(s => `<div class="card"><small>${esc(s.date)} · ${esc(s.quality || s.primary || '')}</small><p>${esc(s.summary)}</p></div>`).join('');
 }
 
 function renderRules() {
   document.getElementById('rules-text').textContent = db.rules;
   document.getElementById('research-notes').value = db.notes || '';
-  let html = '';
-  db.exercises.forEach((e, i) => {
-    html += `<div class="checkbox-row"><span>${esc(e.name)} <small>(${esc(e.cat)})</small></span><input type="checkbox" onchange="toggleDeprio(${i})" ${e.deprioritised ? 'checked' : ''}></div>`;
-  });
-  document.getElementById('exercise-rules').innerHTML = html;
+  document.getElementById('exercise-rules').innerHTML = db.exercises.map((e,i) => `<div class="checkbox-row"><span>${esc(e.name)} <small>(${esc(e.cat)})</small></span><input type="checkbox" onchange="toggleDeprio(${i})" ${e.deprioritised ? 'checked' : ''}></div>`).join('');
 }
 
-document.querySelectorAll('#bottom-nav button').forEach(btn => {
-  btn.addEventListener('click', e => {
-    const target = e.currentTarget.dataset.target;
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('#bottom-nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(target).classList.add('active');
-    e.currentTarget.classList.add('active');
-    renderActiveView(target);
-  });
-});
+document.querySelectorAll('#bottom-nav button').forEach(btn => btn.addEventListener('click', e => {
+  const target = e.currentTarget.dataset.target;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('#bottom-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(target).classList.add('active');
+  e.currentTarget.classList.add('active');
+  renderActiveView(target);
+}));
 
 document.getElementById('save-session-btn').addEventListener('click', () => {
   const primary = document.getElementById('log-primary')?.value || 'mixed';
   const items = [...document.querySelectorAll('[id^="log-ex-"]')].map(el => [el.previousElementSibling.innerText, '', el.value, '', el.dataset.chain || '', 'logged']);
   const summary = `${primary}: ` + items.map(i => `${i[0]} (${i[2]})`).join(', ') + '. ' + (document.getElementById('log-notes').value || '');
-  const session = { date:todayISO(), primary, quality:primary, summary, exercises:items, source:'local' };
-  db.sessions.unshift(session);
+  db.sessions.unshift({ date:todayISO(), primary, quality:primary, summary, exercises:items, source:'local' });
   db.dynamicState.lastQuality = primary;
   items.forEach(i => { if (db.dynamicState.lastUsedPerCategory && i[4]) db.dynamicState.lastUsedPerCategory[i[4]] = todayISO(); });
-  if (items.some(i => i[4] === 'grip')) db.dynamicState.gripFlag = false;
   saveDB();
   alert('Session saved.');
-  renderActiveView('view-history');
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('#bottom-nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-history').classList.add('active');
-  document.querySelector('[data-target="view-history"]').classList.add('active');
+  document.querySelector('[data-target="view-history"]').click();
 });
 
-document.getElementById('save-notes-btn').addEventListener('click', () => {
-  db.notes = document.getElementById('research-notes').value;
-  db.research.push({ date:todayISO(), note:db.notes, manual:true });
-  saveDB();
-  alert('Notes saved.');
-});
-
+document.getElementById('save-notes-btn').addEventListener('click', () => { db.notes = document.getElementById('research-notes').value; saveDB(); alert('Notes saved.'); });
 window.toggleDeprio = function(idx) { db.exercises[idx].deprioritised = !db.exercises[idx].deprioritised; saveDB(); };
-
 document.getElementById('export-db-btn').addEventListener('click', () => copyText(JSON.stringify(db, null, 2), 'Copied full DB.'));
 document.getElementById('export-gpt-btn').addEventListener('click', () => copyText(JSON.stringify({ date:todayISO(), dynamicState:db.dynamicState, suggestion:generateSuggestion(), recent10:recentCompleted(10), last7:db.sessions.slice(0,7) }, null, 2), 'Copied ChatGPT status.'));
-document.getElementById('import-db-btn').addEventListener('click', () => {
-  try { const incoming = migrate(JSON.parse(document.getElementById('import-data').value)); db = incoming; saveDB(); alert('Imported.'); renderActiveView('view-status'); }
-  catch(e) { alert('Invalid JSON.'); }
-});
-
-function copyText(text, msg) {
-  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => alert(msg)).catch(() => prompt('Copy this:', text));
-  else prompt('Copy this:', text);
-}
-
+document.getElementById('import-db-btn').addEventListener('click', () => { try { db = migrate(JSON.parse(document.getElementById('import-data').value)); saveDB(); alert('Imported.'); renderActiveView('view-status'); } catch(e) { alert('Invalid JSON.'); } });
+function copyText(text, msg) { navigator.clipboard ? navigator.clipboard.writeText(text).then(() => alert(msg)).catch(() => prompt('Copy this:', text)) : prompt('Copy this:', text); }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js').catch(() => {});
-
 loadArchive().then(() => renderActiveView('view-today'));
 renderActiveView('view-today');
