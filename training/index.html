@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Training OS">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Soviet Training OS</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+</head>
+<body>
+  <header class="top">
+    <div class="badge">☭ LOCAL-FIRST · OFFLINE · PHONE APP</div>
+    <h1>Soviet Training OS</h1>
+    <p id="subtitle">Fast tactical training dashboard.</p>
+  </header>
+
+  <main id="app" aria-live="polite"></main>
+
+  <nav class="nav" aria-label="Primary">
+    <button data-view="today">🏠<span>Today</span></button>
+    <button data-view="log">📝<span>Log</span></button>
+    <button data-view="status">📊<span>Status</span></button>
+    <button data-view="history">🕘<span>History</span></button>
+    <button data-view="rules">📜<span>Rules</span></button>
+  </nav>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
