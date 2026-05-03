@@ -16,20 +16,17 @@
         </header>
 
         <main id="content">
-            <!-- Today Screen -->
             <section id="view-today" class="view active">
                 <h2>Suggested Session</h2>
                 <div id="today-suggestion"></div>
             </section>
 
-            <!-- Log Screen -->
             <section id="view-log" class="view">
                 <h2>Log Session</h2>
                 <form id="log-form"></form>
                 <button id="save-session-btn" class="btn primary">Save Session</button>
             </section>
 
-            <!-- Status Screen -->
             <section id="view-status" class="view">
                 <h2>Status & Telemetry</h2>
                 <div id="status-content"></div>
@@ -41,30 +38,27 @@
                 </div>
             </section>
 
-            <!-- History Screen -->
             <section id="view-history" class="view">
                 <h2>Last 7 Sessions</h2>
                 <div id="history-list"></div>
             </section>
 
-            <!-- Rules Screen -->
             <section id="view-rules" class="view">
                 <h2>Rules & Notes</h2>
                 <pre id="rules-text"></pre>
-                <h3>Update Rule / Research Note</h3>
-                <select id="deprioritise-select"></select>
-                <button id="toggle-deprioritise-btn" class="btn">Toggle Deprioritise</button>
-                <textarea id="research-note" placeholder="Paste research or note..."></textarea>
-                <button id="save-note-btn" class="btn">Save Note</button>
+                <div id="exercise-rules"></div>
+                <h3>Research / Manual Notes</h3>
+                <textarea id="research-notes" placeholder="Paste research or note..."></textarea>
+                <button id="save-notes-btn" class="btn">Save Notes</button>
             </section>
         </main>
 
-        <nav>
-            <button data-view="today" class="active">Today</button>
-            <button data-view="log">Log</button>
-            <button data-view="status">Status</button>
-            <button data-view="history">History</button>
-            <button data-view="rules">Rules</button>
+        <nav id="bottom-nav">
+            <button data-target="view-today" class="active">Today</button>
+            <button data-target="view-log">Log</button>
+            <button data-target="view-status">Status</button>
+            <button data-target="view-history">History</button>
+            <button data-target="view-rules">Rules</button>
         </nav>
     </div>
     <script src="app.js"></script>
