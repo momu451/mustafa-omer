@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Year 7 KS3 Non-Calc Tests</title>
+  <meta name="description" content="Mobile-first Year 7 Set 1 KS3 non-calculator maths practice papers.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">KS3 Year 7 Set 1</p>
+      <h1>Non-Calculator Test Bank</h1>
+    </div>
+    <div class="timer" id="timer">30:00</div>
+  </header>
+
+  <main class="shell">
+    <section class="panel intro" id="intro">
+      <div>
+        <h2>35 unique papers. 20 marks each. 30 minutes.</h2>
+        <p>Strict non-calculator practice across number, algebra, geometry, measure, ratio, statistics and transformations.</p>
+      </div>
+      <div class="controls">
+        <label for="paperSelect">Choose paper</label>
+        <select id="paperSelect"></select>
+        <button id="startBtn" type="button">Start selected paper</button>
+        <button id="randomBtn" type="button" class="secondary">Random paper</button>
+      </div>
+    </section>
+
+    <section class="panel status" id="statusPanel" hidden>
+      <div>
+        <p class="eyebrow" id="paperMeta">Paper</p>
+        <h2 id="paperTitle">Paper title</h2>
+      </div>
+      <div class="miniStats">
+        <span id="progressText">0 / 16 answered</span>
+        <span id="marksText">20 marks</span>
+      </div>
+    </section>
+
+    <form id="paperForm" class="paper" hidden></form>
+
+    <section class="actions" id="actions" hidden>
+      <button id="submitBtn" type="button">Submit and mark</button>
+      <button id="printBtn" type="button" class="secondary">Print blank paper</button>
+      <button id="resetBtn" type="button" class="secondary">Reset answers</button>
+    </section>
+
+    <section class="panel result" id="result" hidden></section>
+
+    <section class="panel history">
+      <h2>Score history</h2>
+      <div id="historyList" class="historyList">No scores yet.</div>
+    </section>
+  </main>
+
+  <script src="./generate-bank.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>
