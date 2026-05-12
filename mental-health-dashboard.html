@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mental Health Signal Log — Mohammed Omer Mustafa</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #566070;
+      --line: #d9dee8;
+      --header: #101828;
+      --accent: #0f766e;
+      --soft: #eef7f6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.45;
+      font-size: 17px;
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 24px 0 44px;
+    }
+    header {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    h1 {
+      margin: 0 0 8px;
+      color: var(--header);
+      font-size: clamp(1.55rem, 4vw, 2.25rem);
+      line-height: 1.15;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 860px;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .pill {
+      display: inline-block;
+      border: 1px solid #b7d6d2;
+      background: var(--soft);
+      color: #115e59;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.92rem;
+      font-weight: 650;
+    }
+    .notice {
+      background: #fff;
+      border-left: 5px solid var(--accent);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+    .table-shell {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 14px 14px;
+      vertical-align: top;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+    }
+    th {
+      background: #f1f4f9;
+      color: #111827;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    tr:last-child td { border-bottom: 0; }
+    td.date { width: 138px; font-weight: 750; color: #111827; }
+    td.signal { width: 230px; font-weight: 700; }
+    td.condition { width: 170px; }
+    .condition-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag {
+      display: inline-block;
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.88rem;
+      font-weight: 650;
+      color: #3730a3;
+    }
+    .empty, .error {
+      padding: 18px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+    .error { border-left: 5px solid #b42318; color: #7a271a; }
+    @media (max-width: 760px) {
+      body { font-size: 16px; }
+      .wrap { width: min(100% - 18px, 1180px); padding-top: 12px; }
+      header { padding: 18px; border-radius: 12px; }
+      .table-shell { border: 0; background: transparent; box-shadow: none; overflow: visible; }
+      table, thead, tbody, tr, th, td { display: block; width: 100%; }
+      thead { display: none; }
+      tr {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+      }
+      td {
+        border-bottom: 1px solid var(--line);
+        padding: 11px 13px;
+      }
+      td:last-child { border-bottom: 0; }
+      td::before {
+        content: attr(data-label);
+        display: block;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+      td.date, td.signal, td.condition { width: 100%; }
+    }
+    @media print {
+      body { background: #fff; font-size: 12pt; }
+      .wrap { width: 100%; padding: 0; }
+      header, .table-shell, .notice { box-shadow: none; }
+      tr { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Mental Health Signal Log — Mohammed Omer Mustafa</h1>
+      <p class="subtitle">Date range covered: 20 Feb 2026 to 12 May 2026. This log is compiled from chat interactions for clinical review.</p>
+      <div class="meta">
+        <span class="pill" id="row-count">Loading log…</span>
+        <span class="pill">Reverse chronological</span>
+        <span class="pill">Source: chat-derived signal log</span>
+      </div>
+    </header>
+
+    <p class="notice">This page presents behavioural signals, context, short evidence summaries, and condition-alignment labels. It is intended as a quick review aid for a GP appointment.</p>
+
+    <section id="status" aria-live="polite"></section>
+    <section class="table-shell" id="table-shell" hidden>
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Signal</th>
+            <th>Context</th>
+            <th>Evidence</th>
+            <th>Condition alignment</th>
+          </tr>
+        </thead>
+        <tbody id="log-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"']/g, function (char) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+      });
+    }
+
+    function conditionTags(value) {
+      return String(value || '')
+        .split(',')
+        .map(function (item) { return item.trim(); })
+        .filter(Boolean)
+        .map(function (item) { return '<span class="tag">' + esc(item) + '</span>'; })
+        .join('');
+    }
+
+    function renderRows(rows) {
+      var body = document.getElementById('log-body');
+      body.innerHTML = rows.map(function (row) {
+        return '<tr>' +
+          '<td class="date" data-label="Date">' + esc(row.date) + '</td>' +
+          '<td class="signal" data-label="Signal">' + esc(row.signal) + '</td>' +
+          '<td data-label="Context">' + esc(row.context) + '</td>' +
+          '<td data-label="Evidence">' + esc(row.evidence) + '</td>' +
+          '<td class="condition" data-label="Condition alignment"><div class="condition-tags">' + conditionTags(row.condition) + '</div></td>' +
+        '</tr>';
+      }).join('');
+      document.getElementById('row-count').textContent = rows.length + ' entries';
+      document.getElementById('table-shell').hidden = false;
+    }
+
+    fetch('mental-health-log.json', { cache: 'no-store' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Could not load mental-health-log.json');
+        return response.json();
+      })
+      .then(function (rows) {
+        if (!Array.isArray(rows) || rows.length === 0) {
+          document.getElementById('status').innerHTML = '<div class="empty">No log entries found.</div>';
+          return;
+        }
+        renderRows(rows);
+      })
+      .catch(function (error) {
+        document.getElementById('row-count').textContent = 'Log unavailable';
+        document.getElementById('status').innerHTML = '<div class="error">Unable to load the mental health signal log. ' + esc(error.message) + '</div>';
+      });
+  </script>
+</body>
+</html>
