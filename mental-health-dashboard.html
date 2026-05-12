@@ -3,460 +3,93 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Executive Mental Health Signal Dashboard — Mohammed Omer Mustafa</title>
+  <title>Mental Health Signal Dashboard — Mohammed Omer Mustafa</title>
   <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --ink: #101828;
-      --muted: #5b6475;
-      --line: #d8dee9;
-      --soft: #eef7f6;
-      --accent: #0f766e;
-      --accent-2: #115e59;
-      --amber: #b45309;
-      --blue: #1d4ed8;
-      --purple: #6d28d9;
-      --red: #b42318;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.45;
-    }
-    .wrap {
-      width: min(1180px, calc(100% - 28px));
-      margin: 0 auto;
-      padding: 18px 0 42px;
-    }
-    header, .card, details {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-    }
-    header {
-      padding: 22px;
-      margin-bottom: 14px;
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: clamp(1.45rem, 4vw, 2.2rem);
-      line-height: 1.12;
-      letter-spacing: -0.02em;
-    }
-    h2 { margin: 0 0 12px; font-size: 1.15rem; }
-    h3 { margin: 0 0 4px; font-size: 1rem; }
-    p { margin: 0; }
-    .subtitle { color: var(--muted); max-width: 900px; }
-    .meta, .tags, .controls, .condition-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .meta { margin-top: 14px; }
-    .pill, .tag {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-weight: 700;
-      font-size: 0.88rem;
-      white-space: nowrap;
-    }
-    .pill { background: var(--soft); border: 1px solid #b7d6d2; color: var(--accent-2); }
-    .tag { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; }
-    .notice {
-      background: #fff;
-      border-left: 5px solid var(--accent);
-      border-radius: 12px;
-      padding: 13px 15px;
-      margin: 0 0 14px;
-      color: var(--muted);
-    }
-    .grid { display: grid; gap: 14px; }
-    .summary-grid { grid-template-columns: repeat(4, 1fr); margin-bottom: 14px; }
-    .main-grid { grid-template-columns: 1.1fr 0.9fr; align-items: start; }
-    .card { padding: 18px; }
-    .metric .label { color: var(--muted); font-size: 0.86rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
-    .metric .value { display: block; margin-top: 5px; font-size: 1.8rem; font-weight: 850; letter-spacing: -0.03em; }
-    .metric .note { color: var(--muted); font-size: 0.9rem; }
-    .radar-wrap { display: grid; grid-template-columns: minmax(280px, 1fr) 260px; gap: 12px; align-items: center; }
-    .radar-box {
-      min-height: 360px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    svg { max-width: 100%; height: auto; }
-    .axis-label { font-size: 12px; font-weight: 750; fill: #344054; }
-    .axis-score { font-size: 11px; fill: var(--muted); font-weight: 700; }
-    .legend { display: grid; gap: 8px; }
-    .legend button, .controls button {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--ink);
-      border-radius: 12px;
-      padding: 10px 12px;
-      text-align: left;
-      cursor: pointer;
-      font: inherit;
-    }
-    .legend button:hover, .legend button.active, .controls button.active { border-color: var(--accent); background: var(--soft); }
-    .legend .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-    .legend .name { font-weight: 800; font-size: 0.92rem; }
-    .legend .score { font-weight: 850; color: var(--accent-2); }
-    .legend .sub { color: var(--muted); font-size: 0.86rem; margin-top: 2px; }
-    .bar { height: 7px; background: #eef2f7; border-radius: 999px; overflow: hidden; margin-top: 7px; }
-    .bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
-    .method { color: var(--muted); font-size: 0.88rem; margin-top: 10px; }
-    .controls { margin-bottom: 10px; }
-    .controls button { width: auto; font-size: 0.92rem; padding: 8px 11px; }
-    .evidence-list { display: grid; gap: 10px; }
-    .evidence-item {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px;
-      background: #fcfcfd;
-    }
-    .evidence-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-weight: 750;
-      font-size: 0.88rem;
-    }
-    .evidence-signal { font-weight: 850; color: var(--ink); margin-bottom: 5px; }
-    .evidence-context { color: var(--muted); margin-bottom: 5px; }
-    .quote { color: #344054; }
-    .condition-row { display: grid; grid-template-columns: 135px 1fr 42px; gap: 10px; align-items: center; margin: 9px 0; }
-    .condition-name { font-weight: 800; }
-    .condition-count { text-align: right; font-weight: 850; color: var(--accent-2); }
-    details { margin-top: 14px; overflow: hidden; }
-    summary {
-      padding: 15px 18px;
-      cursor: pointer;
-      font-weight: 850;
-      list-style: none;
-    }
-    summary::-webkit-details-marker { display: none; }
-    .table-shell { padding: 0 0 12px; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 900px; }
-    th, td { padding: 12px 14px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
-    th { background: #f1f4f9; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
-    td.date { width: 130px; font-weight: 800; }
-    td.signal { width: 220px; font-weight: 800; }
-    .error { border-left: 5px solid var(--red); color: #7a271a; }
-    @media (max-width: 920px) {
-      .summary-grid, .main-grid, .radar-wrap { grid-template-columns: 1fr; }
-      .radar-box { min-height: 300px; }
-    }
-    @media (max-width: 620px) {
-      body { font-size: 15px; }
-      .wrap { width: min(100% - 18px, 1180px); padding-top: 10px; }
-      header, .card { padding: 15px; border-radius: 14px; }
-      .metric .value { font-size: 1.5rem; }
-      .radar-box { min-height: 260px; }
-      .condition-row { grid-template-columns: 115px 1fr 34px; gap: 7px; }
-      .controls button { flex: 1 1 auto; text-align: center; }
-      table { min-width: 760px; }
-    }
-    @media print {
-      body { background: #fff; font-size: 11pt; }
-      .wrap { width: 100%; padding: 0; }
-      header, .card, details { box-shadow: none; }
-      .controls, details { display: none; }
-      .main-grid, .summary-grid, .radar-wrap { grid-template-columns: 1fr 1fr; }
-    }
+    :root{--bg:#f4f6f8;--card:#fff;--ink:#111827;--muted:#667085;--line:#d9e0ea;--accent:#0f766e;--accent2:#14b8a6;--soft:#ecfdf5;--warn:#b45309;--danger:#b42318;--shadow:0 12px 30px rgba(16,24,40,.07)}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 15% 0%,#e6fffb 0,#f4f6f8 30%,#f4f6f8 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.45}.wrap{width:min(1180px,calc(100% - 28px));margin:auto;padding:18px 0 42px}.hero{background:linear-gradient(135deg,#0f766e 0%,#115e59 55%,#134e4a 100%);color:#fff;border-radius:24px;padding:24px;box-shadow:var(--shadow);margin-bottom:14px}.hero h1{margin:0 0 8px;font-size:clamp(1.55rem,4vw,2.55rem);line-height:1.08;letter-spacing:-.035em}.hero p{margin:0;color:#d9fffb;max-width:900px}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.chip{display:inline-flex;align-items:center;border-radius:999px;padding:7px 11px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);font-weight:750;font-size:.9rem}.notice{background:rgba(255,255,255,.86);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:16px;padding:13px 15px;margin:0 0 14px;color:var(--muted)}.grid{display:grid;gap:14px}.summary{grid-template-columns:repeat(4,1fr);margin-bottom:14px}.main{grid-template-columns:1.15fr .85fr;align-items:start}.card,details{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.card{padding:18px}.kicker{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:850}.big{display:block;margin-top:4px;font-size:2rem;line-height:1;font-weight:900;letter-spacing:-.045em}.small{color:var(--muted);font-size:.9rem;margin-top:5px}h2{margin:0 0 12px;font-size:1.15rem;letter-spacing:-.02em}.radar-layout{display:grid;grid-template-columns:minmax(280px,1fr) 292px;gap:14px;align-items:center}.radar-stage{min-height:380px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(180deg,#fff,#f9fafb);border:1px solid #edf0f5}.radar-stage svg{width:min(100%,430px);height:auto}.axis-label{font-size:12px;font-weight:900;fill:#344054}.axis-score{font-size:11px;font-weight:850;fill:#667085}.radar-hit{cursor:pointer}.radar-hit:hover circle{stroke:#111827;stroke-width:2}.legend{display:grid;gap:8px}.btn{border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;text-align:left;cursor:pointer;font:inherit;color:var(--ink);width:100%;transition:.12s ease}.btn:hover,.btn.active{border-color:var(--accent);background:var(--soft);transform:translateY(-1px)}.btn .top{display:flex;justify-content:space-between;gap:8px}.btn b{font-size:.92rem}.score{font-weight:950;color:#0f766e}.bar{height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;margin-top:8px}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px}.method{margin-top:10px;color:var(--muted);font-size:.86rem}.conditions{display:grid;gap:11px}.condition-row{display:grid;grid-template-columns:130px 1fr 40px;gap:10px;align-items:center}.condition-row b{font-size:.92rem}.condition-row strong{text-align:right;color:#0f766e}.evidence{margin-top:14px}.controls{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}.controls .btn{width:auto;padding:8px 11px;text-align:center}.evidence-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.evidence-item{border:1px solid var(--line);border-radius:16px;background:#fcfcfd;padding:12px}.evidence-top{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:.84rem;font-weight:800;margin-bottom:6px}.evidence-signal{font-weight:900;margin-bottom:4px}.evidence-context{color:var(--muted);margin-bottom:5px}.quote{color:#344054}.tag{display:inline-flex;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;border-radius:999px;padding:4px 8px;font-weight:800;font-size:.82rem}.tagbox{display:flex;flex-wrap:wrap;gap:5px}details{margin-top:14px;overflow:hidden}summary{padding:15px 18px;cursor:pointer;font-weight:900;list-style:none}summary::-webkit-details-marker{display:none}.table-shell{overflow:auto;padding-bottom:12px}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:11px 13px;border-top:1px solid var(--line);vertical-align:top;text-align:left}th{background:#f1f5f9;font-size:.8rem;letter-spacing:.05em;text-transform:uppercase}td:first-child{font-weight:850;white-space:nowrap}.error{border-left:5px solid var(--danger);color:#7a271a}@media(max-width:930px){.summary,.main,.radar-layout{grid-template-columns:1fr}.radar-stage{min-height:310px}.evidence-list{grid-template-columns:1fr}}@media(max-width:620px){.wrap{width:min(100% - 18px,1180px);padding-top:10px}.hero,.card{border-radius:18px;padding:15px}.big{font-size:1.55rem}.condition-row{grid-template-columns:112px 1fr 34px}.controls .btn{flex:1 1 auto}.radar-stage{min-height:270px}body{font-size:15px}}@media print{body{background:#fff;font-size:11pt}.wrap{width:100%;padding:0}.hero,.card,details{box-shadow:none}.controls,details{display:none}.summary,.main{grid-template-columns:1fr 1fr}.evidence-list{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <main class="wrap">
-    <header>
-      <h1>Executive Mental Health Signal Dashboard — Mohammed Omer Mustafa</h1>
-      <p class="subtitle">Date range covered: 20 Feb 2026 to 12 May 2026. Compiled from chat interactions for clinical review. The detailed log remains available underneath, but this view surfaces the pattern signals first.</p>
-      <div class="meta">
-        <span class="pill" id="row-count">Loading…</span>
-        <span class="pill">Radar = signal density, not clinical severity</span>
-        <span class="pill">No external scripts</span>
-      </div>
-    </header>
-
-    <p class="notice">Read this as a consultation aid: recurring threat response, reassurance loops, administrative stressors, and functional impact. It is not a diagnostic report.</p>
-
-    <section id="status" aria-live="polite"></section>
-
-    <section class="grid summary-grid" id="summary-grid" hidden>
-      <div class="card metric"><span class="label">Entries reviewed</span><span class="value" id="metric-total">—</span><p class="note">Chat-derived observations</p></div>
-      <div class="card metric"><span class="label">Date range</span><span class="value" id="metric-range">—</span><p class="note">Most recent first</p></div>
-      <div class="card metric"><span class="label">Highest signal</span><span class="value" id="metric-highest">—</span><p class="note" id="metric-highest-note">—</p></div>
-      <div class="card metric"><span class="label">Condition labels</span><span class="value" id="metric-labels">—</span><p class="note">Alignment labels from log</p></div>
+    <section class="hero">
+      <h1>Mental Health Signal Dashboard</h1>
+      <p>Mohammed Omer Mustafa · 20 Feb 2026 to 12 May 2026 · chat-derived signal summary for GP review.</p>
+      <div class="chips"><span class="chip" id="row-count">Loading…</span><span class="chip">Radar = signal density</span><span class="chip">Tap radar labels or buttons</span><span class="chip">Raw log collapsed below</span></div>
     </section>
-
-    <section class="grid main-grid" id="dashboard-grid" hidden>
-      <div class="card">
-        <h2>Signal Radar</h2>
-        <div class="radar-wrap">
-          <div class="radar-box" id="radar-box"></div>
-          <div>
-            <div class="legend" id="indicator-legend"></div>
-            <p class="method">Score method: each indicator is calculated from the existing log by matching relevant signal/context words, then normalised to 0–10 against the strongest observed indicator. This is a quick visual summary, not a medical severity scale.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Condition Alignment Count</h2>
-        <div id="condition-bars"></div>
-        <p class="method">Counts show how often each alignment label appears across the existing entries.</p>
-      </div>
+    <p class="notice">This is a consultation aid, not a diagnostic report. It summarises recurring signal patterns and keeps the detailed wording behind a collapsed evidence log.</p>
+    <section id="status"></section>
+    <section class="grid summary" id="summary" hidden>
+      <div class="card"><div class="kicker">Entries</div><span class="big" id="m-total">—</span><p class="small">Signal rows reviewed</p></div>
+      <div class="card"><div class="kicker">Range</div><span class="big">Feb–May</span><p class="small">2026, reverse chronological</p></div>
+      <div class="card"><div class="kicker">Highest signal</div><span class="big" id="m-high">—</span><p class="small" id="m-high-note">—</p></div>
+      <div class="card"><div class="kicker">Alignment labels</div><span class="big" id="m-labels">—</span><p class="small">PTSD / anxiety / depression / OCD-type</p></div>
     </section>
-
-    <section class="card" id="evidence-panel" hidden>
-      <h2 id="evidence-title">Evidence Snapshot</h2>
-      <div class="controls" id="quick-controls"></div>
-      <div class="evidence-list" id="evidence-list"></div>
+    <section class="grid main" id="main" hidden>
+      <div class="card"><h2>Interactive Signal Radar</h2><div class="radar-layout"><div class="radar-stage" id="radar"></div><div><div class="legend" id="legend"></div><p class="method">Score = matched entries normalised to 0–10 against the strongest observed signal. This is pattern density, not clinical severity.</p></div></div></div>
+      <div class="card"><h2>Condition Alignment Count</h2><div class="conditions" id="conditions"></div><p class="method">Counts reflect how often each alignment label appears in the underlying log.</p></div>
     </section>
-
-    <details id="full-log" hidden>
-      <summary>Open full underlying evidence log</summary>
-      <div class="table-shell">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th><th>Signal</th><th>Context</th><th>Evidence</th><th>Alignment</th>
-            </tr>
-          </thead>
-          <tbody id="log-body"></tbody>
-        </table>
-      </div>
-    </details>
+    <section class="card evidence" id="evidence-panel" hidden><h2 id="e-title">Evidence Snapshot</h2><div class="controls" id="controls"></div><div class="evidence-list" id="evidence"></div></section>
+    <details id="raw" hidden><summary>Open full underlying evidence log</summary><div class="table-shell"><table><thead><tr><th>Date</th><th>Signal</th><th>Context</th><th>Evidence</th><th>Alignment</th></tr></thead><tbody id="log-body"></tbody></table></div></details>
   </main>
 
+  <script id="fallback-data" type="application/json">[
+  {"date":"12 May 2026","signal":"Hypervigilance / identity distress / emotional volatility","context":"GP appointment, fit note expiring 18/05/26, job rejection, SYP uncertainty, relationship/intimacy distress","evidence":"My moods all over the place… Hypervigilance is high… even at the gym I feel people are looking at me / talking about me… I’ve lost my appeal and position as the earner / manhood.","condition":"PTSD, anxiety, depression"},
+  {"date":"12 May 2026","signal":"Reassurance-seeking","context":"HMRC benefit declaration screen","evidence":"Asked which benefit option to tick and demanded certainty: Which of the attached options do I currently receive? No BS and don’t fuck up.","condition":"anxiety, OCD-type"},
+  {"date":"8 May 2026","signal":"Catastrophic thinking / rumination","context":"ESA assessment report received; SYP vetting unresolved; fear of employer references","evidence":"I have no idea wtf will happen or is happening with SYP… I’m not optimistic… if one of my old employers has said shit about me then fuck them.","condition":"PTSD, anxiety, depression"},
+  {"date":"Early May 2026","signal":"Reassurance-seeking / rejection sensitivity","context":"Job applications and lack of progress","evidence":"Repeated concern that applications were draining energy and repeated rejections were damaging self-worth and motivation.","condition":"anxiety, depression, OCD-type"},
+  {"date":"5 May 2026","signal":"Catastrophic thinking","context":"SYP vetting attachments / finance explanation","evidence":"This is fucking serious… potential employment with SYP is on the line FFS.","condition":"anxiety, PTSD"},
+  {"date":"1 May 2026","signal":"Catastrophic thinking","context":"ESA/WCA outcome possibly affecting SYP","evidence":"What will happen to SYP if I get a decision in my favour — am I fucked?","condition":"anxiety, PTSD"},
+  {"date":"29 Apr 2026","signal":"Emotional dysregulation","context":"Challenge to assistant’s analysis","evidence":"I don’t believe a word you say… I think you’re losing it.","condition":"PTSD, anxiety"},
+  {"date":"29 Apr 2026","signal":"Reassurance-seeking / administrative fear","context":"Wife’s ILR / children’s citizenship registration biometrics","evidence":"Repeated questions on same-day approval, complexity, worst case, next steps, and how long children’s registration would take after biometrics.","condition":"anxiety, OCD-type"},
+  {"date":"27 Apr 2026","signal":"Procedural distrust / unfair-process focus","context":"PIP MR Notice / tribunal strategy","evidence":"Project memory records: MR Notice dated 20/04/2026, appeal deadline around 20/05/2026, instruction to appeal online using SSCS1, oral hearing, narrow evidence-led strategy.","condition":"anxiety, OCD-type"},
+  {"date":"27 Apr 2026","signal":"Benefits injustice / factual challenge","context":"PIP refusal and tribunal planning","evidence":"Project memory records: PIP decision dated 08/02/2026, PA4 dated 22/01/2026, 0 points Daily Living / 0 points Mobility, conditions disclosed: depression, anxiety, PTSD, OCD.","condition":"PTSD, anxiety, depression, OCD-type"},
+  {"date":"10 Apr 2026","signal":"Procedural control / defensive documentation","context":"PIP MR submission requirements","evidence":"Project memory records: use PIP Wolverhampton address, include name/NI/DOB on every page, send copies not originals, Signed For/Special Delivery recommended.","condition":"anxiety, OCD-type"},
+  {"date":"8–10 Apr 2026","signal":"Reassurance-seeking / strategic anxiety","context":"Whether to keep PIP MR alive or withdraw because of SYP risk","evidence":"Project memory records: instruction settled on do not withdraw PIP/ESA, keep MR alive, submit focused evidence-led MR attacking PA4 inaccuracies.","condition":"anxiety, OCD-type"},
+  {"date":"8 Apr 2026","signal":"Catastrophic thinking","context":"SYP medical/OH/FMA conflict with PIP/ESA evidence","evidence":"So, basically I’m fucked as far as SYP is concerned.","condition":"anxiety, PTSD"},
+  {"date":"8 Apr 2026","signal":"Catastrophic legal fear","context":"Fear PIP/ESA material could be viewed as fraud or contradiction","evidence":"If the PA4/PIP submission or what I claimed in them comes out then I’m totally fucked… keep me out of fucking jail.","condition":"anxiety, PTSD, OCD-type"},
+  {"date":"8 Apr 2026","signal":"Emotional dysregulation","context":"Frustration over SYP/PIP/ESA strategy","evidence":"Fuck you. What do I do after I withdraw you dick?","condition":"PTSD, anxiety"},
+  {"date":"3 Apr 2026","signal":"Catastrophic thinking","context":"Children’s citizenship/MN1 timing and uncertainty","evidence":"I feel as if the world is crashing down on me… I’m fucked. I’ve ruined my kids lives.","condition":"anxiety, depression, PTSD"},
+  {"date":"30 Mar 2026","signal":"Catastrophic thinking","context":"Storm/property/insurance fear","evidence":"I don’t fucking have buildings insurance FFS. I’m going to jail.","condition":"anxiety, PTSD"},
+  {"date":"19 Mar 2026","signal":"Reassurance-seeking / benefits-process pressure","context":"PIP MR evidence deadline","evidence":"Project memory records: DWP granted MR evidence extension to 17/04/2026 after MR requested 20/02/2026.","condition":"anxiety, OCD-type"},
+  {"date":"16 Mar 2026","signal":"Catastrophic fraud fear","context":"OH telephone consultation; ESA/fit note conflict with SYP","evidence":"Will I go to jail or be held for fraud? Don’t sugarcoat it FFS.","condition":"anxiety, PTSD, OCD-type"},
+  {"date":"16 Mar 2026","signal":"Administrative threat sensitivity","context":"OH nurse said GP/force doctor review needed because of ESA/fit-note technical conflict","evidence":"Project memory records: user became highly distressed and feared integrity/fraud implications despite no formal rejection.","condition":"anxiety, PTSD"},
+  {"date":"10 Mar 2026","signal":"Catastrophic thinking","context":"SYP discovering ESA/fit-note position","evidence":"If the SYP finds out it could mean fraud so I’m fucked either way.","condition":"anxiety, PTSD, OCD-type"},
+  {"date":"9 Mar 2026","signal":"Administrative hyper-focus","context":"SYP vetting submission","evidence":"Project memory records: SYP Vetting Unit received Management Vetting application on 9 March 2026 at 11:39; this became a major threat-monitoring thread.","condition":"anxiety, OCD-type"},
+  {"date":"2 Mar 2026","signal":"PIP unfair-process focus","context":"PIP Mandatory Reconsideration preparation","evidence":"Project memory records: decision dated 08/02/2026 awarded 0 points; telephone assessment 22/01/2026; MR requested 20/02/2026; user contested factual inaccuracies in PA4.","condition":"anxiety, OCD-type"},
+  {"date":"2 Mar 2026","signal":"Perceived misrepresentation / injustice","context":"PIP PA4 report","evidence":"Contested PA4 claims included SAT NAV, two hours driving, running to the gym, daily gym, daily shopping/different routes, cooking for children daily, showering daily/5 mins, stable weight, and assessment completed without support.","condition":"PTSD, anxiety, OCD-type"},
+  {"date":"2 Mar 2026","signal":"Functional-impairment claim","context":"Why PIP was pursued / MR basis","evidence":"User’s stated position: only short familiar necessary driving; avoids unfamiliar journeys due to overwhelming distress; wife/parents support; cannot reliably prepare meals; needs prompting to eat; weight loss from ~79kg to ~70–71kg; inconsistent hygiene/clothing; struggles with engagement.","condition":"PTSD, anxiety, depression, OCD-type"},
+  {"date":"20 Feb 2026","signal":"Benefits shock / unfair outcome","context":"PIP decision received/processed","evidence":"Project memory records: PIP decision dated 08/02/2026, outcome 0 Daily Living / 0 Mobility, effective from 14/10/2025; MR requested 20/02/2026.","condition":"anxiety, depression, OCD-type"},
+  {"date":"20 Feb 2026","signal":"Reassurance-seeking around health/benefits status","context":"ESA and WCA process","evidence":"Project memory records: user receiving ESA around £184.10 fortnightly, WCA50 posted 13/01/2026, continuing fit notes.","condition":"anxiety, OCD-type"}
+]</script>
+
   <script>
-    var INDICATORS = [
-      {
-        id: 'catastrophic',
-        name: 'Threat escalation',
-        short: 'Threat',
-        description: 'Catastrophic/fraud/jail/fucked interpretations around authority or life events.',
-        terms: ['catastrophic', 'fraud fear', 'legal fear', 'benefits shock', 'going to jail', 'fucked', 'ruined']
-      },
-      {
-        id: 'reassurance',
-        name: 'Reassurance loop',
-        short: 'Reassurance',
-        description: 'Repeated checking, deadline pressure, and strategic certainty-seeking.',
-        terms: ['reassurance', 'strategic anxiety', 'procedural control', 'administrative hyper-focus', 'deadline', 'which benefit option']
-      },
-      {
-        id: 'authority',
-        name: 'Authority-process stress',
-        short: 'Authority',
-        description: 'SYP, ESA, PIP, OH, HMRC, ILR/citizenship, tribunal or GP process pressure.',
-        terms: ['syp', 'esa', 'pip', 'oh', 'hmrc', 'ilr', 'citizenship', 'tribunal', 'gp', 'wca', 'vetting', 'benefits', 'home office']
-      },
-      {
-        id: 'unfairness',
-        name: 'Unfairness / misrepresentation',
-        short: 'Unfairness',
-        description: 'Factual challenge, perceived misrepresentation, procedural distrust, PA4/PIP injustice.',
-        terms: ['unfair', 'injustice', 'factual challenge', 'misrepresentation', 'procedural distrust', 'pa4', '0 points', 'contested']
-      },
-      {
-        id: 'dysregulation',
-        name: 'Emotional dysregulation',
-        short: 'Dysregulation',
-        description: 'Anger spikes, hostile language, volatility, disproportionate frustration.',
-        terms: ['emotional dysregulation', 'moods all over', 'fuck you', 'i don’t believe', 'pissed']
-      },
-      {
-        id: 'hypervigilance',
-        name: 'Hypervigilance / identity threat',
-        short: 'Hypervigilance',
-        description: 'Feeling watched/judged, identity/provider threat, status loss, rejection sensitivity.',
-        terms: ['hypervigilance', 'identity', 'watched', 'talking about me', 'manhood', 'provider', 'rejection sensitivity', 'self-worth']
-      },
-      {
-        id: 'function',
-        name: 'Functional impairment',
-        short: 'Function',
-        description: 'Work capacity, fatigue, job-application depletion, daily living impact, prompting/support needs.',
-        terms: ['functional', 'draining energy', 'fit note', 'not fit', 'cannot reliably', 'prompting', 'weight loss', 'hygiene', 'engagement', 'job applications']
-      }
+    var INDICATORS=[
+      {id:'catastrophic',name:'Threat escalation',short:'Threat',terms:['catastrophic','fraud fear','legal fear','benefits shock','going to jail','fucked','ruined']},
+      {id:'reassurance',name:'Reassurance loop',short:'Reassurance',terms:['reassurance','strategic anxiety','procedural control','administrative hyper-focus','deadline','which benefit option']},
+      {id:'authority',name:'Authority-process stress',short:'Authority',terms:['syp','esa','pip','oh','hmrc','ilr','citizenship','tribunal','gp','wca','vetting','benefits','home office']},
+      {id:'unfairness',name:'Unfairness / misrepresentation',short:'Unfairness',terms:['unfair','injustice','factual challenge','misrepresentation','procedural distrust','pa4','0 points','contested']},
+      {id:'dysregulation',name:'Emotional dysregulation',short:'Dysregulation',terms:['emotional dysregulation','moods all over','fuck you','i don’t believe','pissed']},
+      {id:'hypervigilance',name:'Hypervigilance / identity threat',short:'Hypervigilance',terms:['hypervigilance','identity','watched','talking about me','manhood','provider','rejection sensitivity','self-worth']},
+      {id:'function',name:'Functional impairment',short:'Function',terms:['functional','draining energy','fit note','not fit','cannot reliably','prompting','weight loss','hygiene','engagement','job applications']}
     ];
-
-    function esc(value) {
-      return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
-        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
-      });
-    }
-
-    function rowText(row) {
-      return [row.date, row.signal, row.context, row.evidence, row.condition].join(' ').toLowerCase();
-    }
-
-    function matches(row, indicator) {
-      var text = rowText(row);
-      return indicator.terms.some(function (term) { return text.indexOf(term.toLowerCase()) !== -1; });
-    }
-
-    function analyse(rows) {
-      var indicators = INDICATORS.map(function (indicator) {
-        var evidence = rows.filter(function (row) { return matches(row, indicator); });
-        return Object.assign({}, indicator, { count: evidence.length, evidence: evidence });
-      });
-      var maxCount = Math.max.apply(null, indicators.map(function (x) { return x.count; })) || 1;
-      indicators.forEach(function (indicator) {
-        indicator.score = Math.round((indicator.count / maxCount) * 10);
-      });
-      indicators.sort(function (a, b) { return b.score - a.score || b.count - a.count; });
-      return indicators;
-    }
-
-    function conditionCounts(rows) {
-      var counts = {};
-      rows.forEach(function (row) {
-        String(row.condition || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean).forEach(function (label) {
-          counts[label] = (counts[label] || 0) + 1;
-        });
-      });
-      return Object.keys(counts).map(function (name) { return { name: name, count: counts[name] }; }).sort(function (a, b) { return b.count - a.count; });
-    }
-
-    function radarSvg(indicators) {
-      var cx = 210, cy = 210, radius = 132;
-      var ordered = INDICATORS.map(function (base) { return indicators.find(function (x) { return x.id === base.id; }); });
-      var angleStep = Math.PI * 2 / ordered.length;
-      function point(i, r) {
-        var a = -Math.PI / 2 + i * angleStep;
-        return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r, a: a };
-      }
-      var rings = [0.25, 0.5, 0.75, 1].map(function (scale) {
-        var pts = ordered.map(function (_, i) { var p = point(i, radius * scale); return p.x + ',' + p.y; }).join(' ');
-        return '<polygon points="' + pts + '" fill="none" stroke="#d8dee9" stroke-width="1" />';
-      }).join('');
-      var axes = ordered.map(function (indicator, i) {
-        var p = point(i, radius), label = point(i, radius + 38), score = point(i, radius + 54);
-        var anchor = label.x < cx - 20 ? 'end' : label.x > cx + 20 ? 'start' : 'middle';
-        return '<line x1="' + cx + '" y1="' + cy + '" x2="' + p.x + '" y2="' + p.y + '" stroke="#d8dee9" />' +
-          '<text class="axis-label" x="' + label.x + '" y="' + label.y + '" text-anchor="' + anchor + '">' + esc(indicator.short) + '</text>' +
-          '<text class="axis-score" x="' + score.x + '" y="' + score.y + '" text-anchor="' + anchor + '">' + indicator.score + '/10</text>';
-      }).join('');
-      var dataPts = ordered.map(function (indicator, i) { var p = point(i, radius * (indicator.score / 10)); return p.x + ',' + p.y; }).join(' ');
-      var dots = ordered.map(function (indicator, i) { var p = point(i, radius * (indicator.score / 10)); return '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#0f766e"><title>' + esc(indicator.name + ': ' + indicator.score + '/10') + '</title></circle>'; }).join('');
-      return '<svg viewBox="0 0 420 420" role="img" aria-label="Mental health signal radar chart">' +
-        rings + axes +
-        '<polygon points="' + dataPts + '" fill="rgba(15,118,110,0.22)" stroke="#0f766e" stroke-width="3" />' + dots +
-        '</svg>';
-    }
-
-    function renderLegend(indicators, activeId) {
-      document.getElementById('indicator-legend').innerHTML = indicators.map(function (indicator) {
-        var active = indicator.id === activeId ? ' active' : '';
-        return '<button class="indicator-btn' + active + '" data-id="' + esc(indicator.id) + '">' +
-          '<div class="row"><span class="name">' + esc(indicator.name) + '</span><span class="score">' + indicator.score + '/10</span></div>' +
-          '<div class="sub">' + indicator.count + ' matched entries</div>' +
-          '<div class="bar"><span style="width:' + (indicator.score * 10) + '%"></span></div>' +
-        '</button>';
-      }).join('');
-    }
-
-    function renderConditionBars(counts) {
-      var max = Math.max.apply(null, counts.map(function (x) { return x.count; })) || 1;
-      document.getElementById('condition-bars').innerHTML = counts.map(function (item) {
-        return '<div class="condition-row"><div class="condition-name">' + esc(item.name) + '</div><div class="bar"><span style="width:' + Math.round((item.count / max) * 100) + '%"></span></div><div class="condition-count">' + item.count + '</div></div>';
-      }).join('');
-    }
-
-    function renderEvidence(indicator, rows) {
-      var selectedRows = indicator ? indicator.evidence : rows.slice(0, 8);
-      document.getElementById('evidence-title').textContent = indicator ? 'Evidence Snapshot — ' + indicator.name : 'Evidence Snapshot — Recent Entries';
-      document.getElementById('evidence-list').innerHTML = selectedRows.slice(0, 8).map(function (row) {
-        return '<article class="evidence-item">' +
-          '<div class="evidence-top"><span>' + esc(row.date) + '</span><span>' + esc(row.condition) + '</span></div>' +
-          '<div class="evidence-signal">' + esc(row.signal) + '</div>' +
-          '<div class="evidence-context">' + esc(row.context) + '</div>' +
-          '<div class="quote">' + esc(row.evidence) + '</div>' +
-        '</article>';
-      }).join('') || '<p class="method">No matching entries.</p>';
-    }
-
-    function renderQuickControls(indicators, rows) {
-      document.getElementById('quick-controls').innerHTML = '<button class="active" data-id="recent">Recent evidence</button>' + indicators.map(function (indicator) {
-        return '<button data-id="' + esc(indicator.id) + '">' + esc(indicator.short) + '</button>';
-      }).join('');
-    }
-
-    function conditionTags(value) {
-      return String(value || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean).map(function (x) { return '<span class="tag">' + esc(x) + '</span>'; }).join('');
-    }
-
-    function renderFullLog(rows) {
-      document.getElementById('log-body').innerHTML = rows.map(function (row) {
-        return '<tr>' +
-          '<td class="date">' + esc(row.date) + '</td>' +
-          '<td class="signal">' + esc(row.signal) + '</td>' +
-          '<td>' + esc(row.context) + '</td>' +
-          '<td>' + esc(row.evidence) + '</td>' +
-          '<td><div class="condition-tags">' + conditionTags(row.condition) + '</div></td>' +
-        '</tr>';
-      }).join('');
-    }
-
-    function bindInteractions(indicators, rows) {
-      function activate(id) {
-        var indicator = indicators.find(function (x) { return x.id === id; });
-        renderEvidence(indicator || null, rows);
-        document.querySelectorAll('[data-id]').forEach(function (btn) { btn.classList.toggle('active', btn.getAttribute('data-id') === id); });
-        if (id === 'recent') document.querySelector('[data-id="recent"]').classList.add('active');
-      }
-      document.addEventListener('click', function (event) {
-        var btn = event.target.closest('[data-id]');
-        if (!btn) return;
-        activate(btn.getAttribute('data-id'));
-      });
-      activate('recent');
-    }
-
-    function render(rows) {
-      var indicators = analyse(rows);
-      var counts = conditionCounts(rows);
-      var highest = indicators[0];
-      document.getElementById('row-count').textContent = rows.length + ' log entries';
-      document.getElementById('metric-total').textContent = rows.length;
-      document.getElementById('metric-range').textContent = 'Feb–May 2026';
-      document.getElementById('metric-highest').textContent = highest.score + '/10';
-      document.getElementById('metric-highest-note').textContent = highest.name + ' · ' + highest.count + ' entries';
-      document.getElementById('metric-labels').textContent = counts.length;
-      document.getElementById('summary-grid').hidden = false;
-      document.getElementById('dashboard-grid').hidden = false;
-      document.getElementById('evidence-panel').hidden = false;
-      document.getElementById('full-log').hidden = false;
-      document.getElementById('radar-box').innerHTML = radarSvg(indicators);
-      renderLegend(indicators, null);
-      renderConditionBars(counts);
-      renderQuickControls(indicators, rows);
-      renderFullLog(rows);
-      bindInteractions(indicators, rows);
-    }
-
-    fetch('mental-health-log.json', { cache: 'no-store' })
-      .then(function (response) {
-        if (!response.ok) throw new Error('Could not load mental-health-log.json');
-        return response.json();
-      })
-      .then(function (rows) {
-        if (!Array.isArray(rows) || !rows.length) throw new Error('No log entries found');
-        render(rows);
-      })
-      .catch(function (error) {
-        document.getElementById('row-count').textContent = 'Log unavailable';
-        document.getElementById('status').innerHTML = '<section class="card error"><strong>Unable to load dashboard.</strong><br>' + esc(error.message) + '</section>';
-      });
+    function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+    function fallback(){return JSON.parse(document.getElementById('fallback-data').textContent)}
+    function text(r){return [r.date,r.signal,r.context,r.evidence,r.condition].join(' ').toLowerCase()}
+    function match(r,i){var t=text(r);return i.terms.some(function(term){return t.indexOf(term.toLowerCase())>-1})}
+    function analyse(rows){var list=INDICATORS.map(function(i){var ev=rows.filter(function(r){return match(r,i)});return Object.assign({},i,{count:ev.length,evidence:ev})});var max=Math.max.apply(null,list.map(function(x){return x.count}))||1;list.forEach(function(x){x.score=Math.round((x.count/max)*10)});list.sort(function(a,b){return b.score-a.score||b.count-a.count});return list}
+    function conditions(rows){var c={};rows.forEach(function(r){String(r.condition||'').split(',').map(function(x){return x.trim()}).filter(Boolean).forEach(function(x){c[x]=(c[x]||0)+1})});return Object.keys(c).map(function(k){return {name:k,count:c[k]}}).sort(function(a,b){return b.count-a.count})}
+    function radarSvg(indicators){var cx=220,cy=220,rad=138;var ordered=INDICATORS.map(function(base){return indicators.find(function(x){return x.id===base.id})});var step=Math.PI*2/ordered.length;function p(i,r){var a=-Math.PI/2+i*step;return {x:cx+Math.cos(a)*r,y:cy+Math.sin(a)*r}}var rings=[.25,.5,.75,1].map(function(s){return '<polygon points="'+ordered.map(function(_,i){var q=p(i,rad*s);return q.x+','+q.y}).join(' ')+'" fill="none" stroke="#d8dee9"/>'}).join('');var axes=ordered.map(function(ind,i){var end=p(i,rad),lab=p(i,rad+40),sc=p(i,rad+56),anchor=lab.x<cx-20?'end':lab.x>cx+20?'start':'middle';return '<g class="radar-hit" data-id="'+ind.id+'"><line x1="'+cx+'" y1="'+cy+'" x2="'+end.x+'" y2="'+end.y+'" stroke="#d8dee9"/><text class="axis-label" x="'+lab.x+'" y="'+lab.y+'" text-anchor="'+anchor+'">'+esc(ind.short)+'</text><text class="axis-score" x="'+sc.x+'" y="'+sc.y+'" text-anchor="'+anchor+'">'+ind.score+'/10</text></g>'}).join('');var data=ordered.map(function(ind,i){var q=p(i,rad*(ind.score/10));return q.x+','+q.y}).join(' ');var dots=ordered.map(function(ind,i){var q=p(i,rad*(ind.score/10));return '<g class="radar-hit" data-id="'+ind.id+'"><circle cx="'+q.x+'" cy="'+q.y+'" r="7" fill="#0f766e"><title>'+esc(ind.name+': '+ind.score+'/10')+'</title></circle></g>'}).join('');return '<svg viewBox="0 0 440 440" role="img" aria-label="Interactive signal radar">'+rings+axes+'<polygon points="'+data+'" fill="rgba(20,184,166,.24)" stroke="#0f766e" stroke-width="3"/>'+dots+'</svg>'}
+    function renderLegend(indicators){document.getElementById('legend').innerHTML=indicators.map(function(i){return '<button class="btn" data-id="'+esc(i.id)+'"><div class="top"><b>'+esc(i.name)+'</b><span class="score">'+i.score+'/10</span></div><p class="small">'+i.count+' matched entries</p><div class="bar"><span style="width:'+(i.score*10)+'%"></span></div></button>'}).join('')}
+    function renderConditions(counts){var max=Math.max.apply(null,counts.map(function(x){return x.count}))||1;document.getElementById('conditions').innerHTML=counts.map(function(x){return '<div class="condition-row"><b>'+esc(x.name)+'</b><div class="bar"><span style="width:'+Math.round(x.count/max*100)+'%"></span></div><strong>'+x.count+'</strong></div>'}).join('')}
+    function renderEvidence(ind,rows){var selected=ind?ind.evidence:rows.slice(0,6);document.getElementById('e-title').textContent=ind?'Evidence Snapshot — '+ind.name:'Evidence Snapshot — Recent Entries';document.getElementById('evidence').innerHTML=selected.slice(0,6).map(function(r){return '<article class="evidence-item"><div class="evidence-top"><span>'+esc(r.date)+'</span><span>'+esc(r.condition)+'</span></div><div class="evidence-signal">'+esc(r.signal)+'</div><div class="evidence-context">'+esc(r.context)+'</div><div class="quote">'+esc(r.evidence)+'</div></article>'}).join('')||'<p class="small">No matching entries.</p>'}
+    function tags(v){return String(v||'').split(',').map(function(x){return x.trim()}).filter(Boolean).map(function(x){return '<span class="tag">'+esc(x)+'</span>'}).join('')}
+    function raw(rows){document.getElementById('log-body').innerHTML=rows.map(function(r){return '<tr><td>'+esc(r.date)+'</td><td>'+esc(r.signal)+'</td><td>'+esc(r.context)+'</td><td>'+esc(r.evidence)+'</td><td><div class="tagbox">'+tags(r.condition)+'</div></td></tr>'}).join('')}
+    function setActive(id){document.querySelectorAll('[data-id]').forEach(function(el){el.classList.toggle('active',el.getAttribute('data-id')===id)});if(id==='recent'){var b=document.querySelector('[data-id="recent"]');if(b)b.classList.add('active')}}
+    function bind(indicators,rows){document.body.addEventListener('click',function(e){var n=e.target;while(n&&n!==document.body&&!n.getAttribute('data-id'))n=n.parentNode;if(!n||n===document.body)return;var id=n.getAttribute('data-id');var ind=indicators.find(function(x){return x.id===id});renderEvidence(ind||null,rows);setActive(id)});renderEvidence(null,rows);setActive('recent')}
+    function render(rows,source){var ind=analyse(rows),cc=conditions(rows),hi=ind[0];document.getElementById('row-count').textContent=rows.length+' entries · '+source;document.getElementById('m-total').textContent=rows.length;document.getElementById('m-high').textContent=hi.score+'/10';document.getElementById('m-high-note').textContent=hi.name+' · '+hi.count+' entries';document.getElementById('m-labels').textContent=cc.length;['summary','main','evidence-panel','raw'].forEach(function(id){document.getElementById(id).hidden=false});document.getElementById('radar').innerHTML=radarSvg(ind);renderLegend(ind);renderConditions(cc);document.getElementById('controls').innerHTML='<button class="btn active" data-id="recent">Recent</button>'+ind.map(function(i){return '<button class="btn" data-id="'+i.id+'">'+esc(i.short)+'</button>'}).join('');raw(rows);bind(ind,rows)}
+    var fallbackRows=fallback();
+    render(fallbackRows,'embedded fallback');
+    fetch('mental-health-log.json?v=20260512-radar3',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('JSON fetch failed');return r.json()}).then(function(rows){if(Array.isArray(rows)&&rows.length)render(rows,'live JSON')}).catch(function(){/* fallback already rendered */});
   </script>
 </body>
 </html>
