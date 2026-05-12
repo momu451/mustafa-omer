@@ -3,225 +3,445 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mental Health Signal Log — Mohammed Omer Mustafa</title>
+  <title>Executive Mental Health Signal Dashboard — Mohammed Omer Mustafa</title>
   <style>
     :root {
-      --bg: #f7f8fb;
+      --bg: #f6f7fb;
       --card: #ffffff;
-      --text: #172033;
-      --muted: #566070;
-      --line: #d9dee8;
-      --header: #101828;
-      --accent: #0f766e;
+      --ink: #101828;
+      --muted: #5b6475;
+      --line: #d8dee9;
       --soft: #eef7f6;
+      --accent: #0f766e;
+      --accent-2: #115e59;
+      --amber: #b45309;
+      --blue: #1d4ed8;
+      --purple: #6d28d9;
+      --red: #b42318;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       background: var(--bg);
-      color: var(--text);
+      color: var(--ink);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 16px;
       line-height: 1.45;
-      font-size: 17px;
     }
     .wrap {
       width: min(1180px, calc(100% - 28px));
       margin: 0 auto;
-      padding: 24px 0 44px;
+      padding: 18px 0 42px;
     }
-    header {
+    header, .card, details {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 22px;
-      margin-bottom: 18px;
+      border-radius: 16px;
       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+    header {
+      padding: 22px;
+      margin-bottom: 14px;
     }
     h1 {
       margin: 0 0 8px;
-      color: var(--header);
-      font-size: clamp(1.55rem, 4vw, 2.25rem);
-      line-height: 1.15;
+      font-size: clamp(1.45rem, 4vw, 2.2rem);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
     }
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      max-width: 860px;
-    }
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
-    }
-    .pill {
-      display: inline-block;
-      border: 1px solid #b7d6d2;
-      background: var(--soft);
-      color: #115e59;
+    h2 { margin: 0 0 12px; font-size: 1.15rem; }
+    h3 { margin: 0 0 4px; font-size: 1rem; }
+    p { margin: 0; }
+    .subtitle { color: var(--muted); max-width: 900px; }
+    .meta, .tags, .controls, .condition-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meta { margin-top: 14px; }
+    .pill, .tag {
+      display: inline-flex;
+      align-items: center;
       border-radius: 999px;
       padding: 6px 10px;
-      font-size: 0.92rem;
-      font-weight: 650;
+      font-weight: 700;
+      font-size: 0.88rem;
+      white-space: nowrap;
     }
+    .pill { background: var(--soft); border: 1px solid #b7d6d2; color: var(--accent-2); }
+    .tag { background: #eef2ff; border: 1px solid #c7d2fe; color: #3730a3; }
     .notice {
       background: #fff;
       border-left: 5px solid var(--accent);
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin: 0 0 18px;
+      border-radius: 12px;
+      padding: 13px 15px;
+      margin: 0 0 14px;
       color: var(--muted);
     }
-    .table-shell {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 14px 14px;
-      vertical-align: top;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-    }
-    th {
-      background: #f1f4f9;
-      color: #111827;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-    tr:last-child td { border-bottom: 0; }
-    td.date { width: 138px; font-weight: 750; color: #111827; }
-    td.signal { width: 230px; font-weight: 700; }
-    td.condition { width: 170px; }
-    .condition-tags {
+    .grid { display: grid; gap: 14px; }
+    .summary-grid { grid-template-columns: repeat(4, 1fr); margin-bottom: 14px; }
+    .main-grid { grid-template-columns: 1.1fr 0.9fr; align-items: start; }
+    .card { padding: 18px; }
+    .metric .label { color: var(--muted); font-size: 0.86rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+    .metric .value { display: block; margin-top: 5px; font-size: 1.8rem; font-weight: 850; letter-spacing: -0.03em; }
+    .metric .note { color: var(--muted); font-size: 0.9rem; }
+    .radar-wrap { display: grid; grid-template-columns: minmax(280px, 1fr) 260px; gap: 12px; align-items: center; }
+    .radar-box {
+      min-height: 360px;
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+      justify-content: center;
+      align-items: center;
     }
-    .tag {
-      display: inline-block;
-      background: #eef2ff;
-      border: 1px solid #c7d2fe;
-      border-radius: 999px;
-      padding: 4px 8px;
-      font-size: 0.88rem;
-      font-weight: 650;
-      color: #3730a3;
-    }
-    .empty, .error {
-      padding: 18px;
-      background: var(--card);
+    svg { max-width: 100%; height: auto; }
+    .axis-label { font-size: 12px; font-weight: 750; fill: #344054; }
+    .axis-score { font-size: 11px; fill: var(--muted); font-weight: 700; }
+    .legend { display: grid; gap: 8px; }
+    .legend button, .controls button {
+      width: 100%;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
     }
-    .error { border-left: 5px solid #b42318; color: #7a271a; }
-    @media (max-width: 760px) {
-      body { font-size: 16px; }
-      .wrap { width: min(100% - 18px, 1180px); padding-top: 12px; }
-      header { padding: 18px; border-radius: 12px; }
-      .table-shell { border: 0; background: transparent; box-shadow: none; overflow: visible; }
-      table, thead, tbody, tr, th, td { display: block; width: 100%; }
-      thead { display: none; }
-      tr {
-        background: var(--card);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        margin-bottom: 12px;
-        overflow: hidden;
-        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-      }
-      td {
-        border-bottom: 1px solid var(--line);
-        padding: 11px 13px;
-      }
-      td:last-child { border-bottom: 0; }
-      td::before {
-        content: attr(data-label);
-        display: block;
-        color: var(--muted);
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        margin-bottom: 3px;
-      }
-      td.date, td.signal, td.condition { width: 100%; }
+    .legend button:hover, .legend button.active, .controls button.active { border-color: var(--accent); background: var(--soft); }
+    .legend .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .legend .name { font-weight: 800; font-size: 0.92rem; }
+    .legend .score { font-weight: 850; color: var(--accent-2); }
+    .legend .sub { color: var(--muted); font-size: 0.86rem; margin-top: 2px; }
+    .bar { height: 7px; background: #eef2f7; border-radius: 999px; overflow: hidden; margin-top: 7px; }
+    .bar span { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+    .method { color: var(--muted); font-size: 0.88rem; margin-top: 10px; }
+    .controls { margin-bottom: 10px; }
+    .controls button { width: auto; font-size: 0.92rem; padding: 8px 11px; }
+    .evidence-list { display: grid; gap: 10px; }
+    .evidence-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: #fcfcfd;
+    }
+    .evidence-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 0.88rem;
+    }
+    .evidence-signal { font-weight: 850; color: var(--ink); margin-bottom: 5px; }
+    .evidence-context { color: var(--muted); margin-bottom: 5px; }
+    .quote { color: #344054; }
+    .condition-row { display: grid; grid-template-columns: 135px 1fr 42px; gap: 10px; align-items: center; margin: 9px 0; }
+    .condition-name { font-weight: 800; }
+    .condition-count { text-align: right; font-weight: 850; color: var(--accent-2); }
+    details { margin-top: 14px; overflow: hidden; }
+    summary {
+      padding: 15px 18px;
+      cursor: pointer;
+      font-weight: 850;
+      list-style: none;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .table-shell { padding: 0 0 12px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { padding: 12px 14px; border-top: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #f1f4f9; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td.date { width: 130px; font-weight: 800; }
+    td.signal { width: 220px; font-weight: 800; }
+    .error { border-left: 5px solid var(--red); color: #7a271a; }
+    @media (max-width: 920px) {
+      .summary-grid, .main-grid, .radar-wrap { grid-template-columns: 1fr; }
+      .radar-box { min-height: 300px; }
+    }
+    @media (max-width: 620px) {
+      body { font-size: 15px; }
+      .wrap { width: min(100% - 18px, 1180px); padding-top: 10px; }
+      header, .card { padding: 15px; border-radius: 14px; }
+      .metric .value { font-size: 1.5rem; }
+      .radar-box { min-height: 260px; }
+      .condition-row { grid-template-columns: 115px 1fr 34px; gap: 7px; }
+      .controls button { flex: 1 1 auto; text-align: center; }
+      table { min-width: 760px; }
     }
     @media print {
-      body { background: #fff; font-size: 12pt; }
+      body { background: #fff; font-size: 11pt; }
       .wrap { width: 100%; padding: 0; }
-      header, .table-shell, .notice { box-shadow: none; }
-      tr { break-inside: avoid; }
+      header, .card, details { box-shadow: none; }
+      .controls, details { display: none; }
+      .main-grid, .summary-grid, .radar-wrap { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
   <main class="wrap">
     <header>
-      <h1>Mental Health Signal Log — Mohammed Omer Mustafa</h1>
-      <p class="subtitle">Date range covered: 20 Feb 2026 to 12 May 2026. This log is compiled from chat interactions for clinical review.</p>
+      <h1>Executive Mental Health Signal Dashboard — Mohammed Omer Mustafa</h1>
+      <p class="subtitle">Date range covered: 20 Feb 2026 to 12 May 2026. Compiled from chat interactions for clinical review. The detailed log remains available underneath, but this view surfaces the pattern signals first.</p>
       <div class="meta">
-        <span class="pill" id="row-count">Loading log…</span>
-        <span class="pill">Reverse chronological</span>
-        <span class="pill">Source: chat-derived signal log</span>
+        <span class="pill" id="row-count">Loading…</span>
+        <span class="pill">Radar = signal density, not clinical severity</span>
+        <span class="pill">No external scripts</span>
       </div>
     </header>
 
-    <p class="notice">This page presents behavioural signals, context, short evidence summaries, and condition-alignment labels. It is intended as a quick review aid for a GP appointment.</p>
+    <p class="notice">Read this as a consultation aid: recurring threat response, reassurance loops, administrative stressors, and functional impact. It is not a diagnostic report.</p>
 
     <section id="status" aria-live="polite"></section>
-    <section class="table-shell" id="table-shell" hidden>
-      <table>
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Signal</th>
-            <th>Context</th>
-            <th>Evidence</th>
-            <th>Condition alignment</th>
-          </tr>
-        </thead>
-        <tbody id="log-body"></tbody>
-      </table>
+
+    <section class="grid summary-grid" id="summary-grid" hidden>
+      <div class="card metric"><span class="label">Entries reviewed</span><span class="value" id="metric-total">—</span><p class="note">Chat-derived observations</p></div>
+      <div class="card metric"><span class="label">Date range</span><span class="value" id="metric-range">—</span><p class="note">Most recent first</p></div>
+      <div class="card metric"><span class="label">Highest signal</span><span class="value" id="metric-highest">—</span><p class="note" id="metric-highest-note">—</p></div>
+      <div class="card metric"><span class="label">Condition labels</span><span class="value" id="metric-labels">—</span><p class="note">Alignment labels from log</p></div>
     </section>
+
+    <section class="grid main-grid" id="dashboard-grid" hidden>
+      <div class="card">
+        <h2>Signal Radar</h2>
+        <div class="radar-wrap">
+          <div class="radar-box" id="radar-box"></div>
+          <div>
+            <div class="legend" id="indicator-legend"></div>
+            <p class="method">Score method: each indicator is calculated from the existing log by matching relevant signal/context words, then normalised to 0–10 against the strongest observed indicator. This is a quick visual summary, not a medical severity scale.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Condition Alignment Count</h2>
+        <div id="condition-bars"></div>
+        <p class="method">Counts show how often each alignment label appears across the existing entries.</p>
+      </div>
+    </section>
+
+    <section class="card" id="evidence-panel" hidden>
+      <h2 id="evidence-title">Evidence Snapshot</h2>
+      <div class="controls" id="quick-controls"></div>
+      <div class="evidence-list" id="evidence-list"></div>
+    </section>
+
+    <details id="full-log" hidden>
+      <summary>Open full underlying evidence log</summary>
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Signal</th><th>Context</th><th>Evidence</th><th>Alignment</th>
+            </tr>
+          </thead>
+          <tbody id="log-body"></tbody>
+        </table>
+      </div>
+    </details>
   </main>
 
   <script>
+    var INDICATORS = [
+      {
+        id: 'catastrophic',
+        name: 'Threat escalation',
+        short: 'Threat',
+        description: 'Catastrophic/fraud/jail/fucked interpretations around authority or life events.',
+        terms: ['catastrophic', 'fraud fear', 'legal fear', 'benefits shock', 'going to jail', 'fucked', 'ruined']
+      },
+      {
+        id: 'reassurance',
+        name: 'Reassurance loop',
+        short: 'Reassurance',
+        description: 'Repeated checking, deadline pressure, and strategic certainty-seeking.',
+        terms: ['reassurance', 'strategic anxiety', 'procedural control', 'administrative hyper-focus', 'deadline', 'which benefit option']
+      },
+      {
+        id: 'authority',
+        name: 'Authority-process stress',
+        short: 'Authority',
+        description: 'SYP, ESA, PIP, OH, HMRC, ILR/citizenship, tribunal or GP process pressure.',
+        terms: ['syp', 'esa', 'pip', 'oh', 'hmrc', 'ilr', 'citizenship', 'tribunal', 'gp', 'wca', 'vetting', 'benefits', 'home office']
+      },
+      {
+        id: 'unfairness',
+        name: 'Unfairness / misrepresentation',
+        short: 'Unfairness',
+        description: 'Factual challenge, perceived misrepresentation, procedural distrust, PA4/PIP injustice.',
+        terms: ['unfair', 'injustice', 'factual challenge', 'misrepresentation', 'procedural distrust', 'pa4', '0 points', 'contested']
+      },
+      {
+        id: 'dysregulation',
+        name: 'Emotional dysregulation',
+        short: 'Dysregulation',
+        description: 'Anger spikes, hostile language, volatility, disproportionate frustration.',
+        terms: ['emotional dysregulation', 'moods all over', 'fuck you', 'i don’t believe', 'pissed']
+      },
+      {
+        id: 'hypervigilance',
+        name: 'Hypervigilance / identity threat',
+        short: 'Hypervigilance',
+        description: 'Feeling watched/judged, identity/provider threat, status loss, rejection sensitivity.',
+        terms: ['hypervigilance', 'identity', 'watched', 'talking about me', 'manhood', 'provider', 'rejection sensitivity', 'self-worth']
+      },
+      {
+        id: 'function',
+        name: 'Functional impairment',
+        short: 'Function',
+        description: 'Work capacity, fatigue, job-application depletion, daily living impact, prompting/support needs.',
+        terms: ['functional', 'draining energy', 'fit note', 'not fit', 'cannot reliably', 'prompting', 'weight loss', 'hygiene', 'engagement', 'job applications']
+      }
+    ];
+
     function esc(value) {
-      return String(value ?? '').replace(/[&<>"']/g, function (char) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
         return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
       });
     }
 
-    function conditionTags(value) {
-      return String(value || '')
-        .split(',')
-        .map(function (item) { return item.trim(); })
-        .filter(Boolean)
-        .map(function (item) { return '<span class="tag">' + esc(item) + '</span>'; })
-        .join('');
+    function rowText(row) {
+      return [row.date, row.signal, row.context, row.evidence, row.condition].join(' ').toLowerCase();
     }
 
-    function renderRows(rows) {
-      var body = document.getElementById('log-body');
-      body.innerHTML = rows.map(function (row) {
+    function matches(row, indicator) {
+      var text = rowText(row);
+      return indicator.terms.some(function (term) { return text.indexOf(term.toLowerCase()) !== -1; });
+    }
+
+    function analyse(rows) {
+      var indicators = INDICATORS.map(function (indicator) {
+        var evidence = rows.filter(function (row) { return matches(row, indicator); });
+        return Object.assign({}, indicator, { count: evidence.length, evidence: evidence });
+      });
+      var maxCount = Math.max.apply(null, indicators.map(function (x) { return x.count; })) || 1;
+      indicators.forEach(function (indicator) {
+        indicator.score = Math.round((indicator.count / maxCount) * 10);
+      });
+      indicators.sort(function (a, b) { return b.score - a.score || b.count - a.count; });
+      return indicators;
+    }
+
+    function conditionCounts(rows) {
+      var counts = {};
+      rows.forEach(function (row) {
+        String(row.condition || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean).forEach(function (label) {
+          counts[label] = (counts[label] || 0) + 1;
+        });
+      });
+      return Object.keys(counts).map(function (name) { return { name: name, count: counts[name] }; }).sort(function (a, b) { return b.count - a.count; });
+    }
+
+    function radarSvg(indicators) {
+      var cx = 210, cy = 210, radius = 132;
+      var ordered = INDICATORS.map(function (base) { return indicators.find(function (x) { return x.id === base.id; }); });
+      var angleStep = Math.PI * 2 / ordered.length;
+      function point(i, r) {
+        var a = -Math.PI / 2 + i * angleStep;
+        return { x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r, a: a };
+      }
+      var rings = [0.25, 0.5, 0.75, 1].map(function (scale) {
+        var pts = ordered.map(function (_, i) { var p = point(i, radius * scale); return p.x + ',' + p.y; }).join(' ');
+        return '<polygon points="' + pts + '" fill="none" stroke="#d8dee9" stroke-width="1" />';
+      }).join('');
+      var axes = ordered.map(function (indicator, i) {
+        var p = point(i, radius), label = point(i, radius + 38), score = point(i, radius + 54);
+        var anchor = label.x < cx - 20 ? 'end' : label.x > cx + 20 ? 'start' : 'middle';
+        return '<line x1="' + cx + '" y1="' + cy + '" x2="' + p.x + '" y2="' + p.y + '" stroke="#d8dee9" />' +
+          '<text class="axis-label" x="' + label.x + '" y="' + label.y + '" text-anchor="' + anchor + '">' + esc(indicator.short) + '</text>' +
+          '<text class="axis-score" x="' + score.x + '" y="' + score.y + '" text-anchor="' + anchor + '">' + indicator.score + '/10</text>';
+      }).join('');
+      var dataPts = ordered.map(function (indicator, i) { var p = point(i, radius * (indicator.score / 10)); return p.x + ',' + p.y; }).join(' ');
+      var dots = ordered.map(function (indicator, i) { var p = point(i, radius * (indicator.score / 10)); return '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#0f766e"><title>' + esc(indicator.name + ': ' + indicator.score + '/10') + '</title></circle>'; }).join('');
+      return '<svg viewBox="0 0 420 420" role="img" aria-label="Mental health signal radar chart">' +
+        rings + axes +
+        '<polygon points="' + dataPts + '" fill="rgba(15,118,110,0.22)" stroke="#0f766e" stroke-width="3" />' + dots +
+        '</svg>';
+    }
+
+    function renderLegend(indicators, activeId) {
+      document.getElementById('indicator-legend').innerHTML = indicators.map(function (indicator) {
+        var active = indicator.id === activeId ? ' active' : '';
+        return '<button class="indicator-btn' + active + '" data-id="' + esc(indicator.id) + '">' +
+          '<div class="row"><span class="name">' + esc(indicator.name) + '</span><span class="score">' + indicator.score + '/10</span></div>' +
+          '<div class="sub">' + indicator.count + ' matched entries</div>' +
+          '<div class="bar"><span style="width:' + (indicator.score * 10) + '%"></span></div>' +
+        '</button>';
+      }).join('');
+    }
+
+    function renderConditionBars(counts) {
+      var max = Math.max.apply(null, counts.map(function (x) { return x.count; })) || 1;
+      document.getElementById('condition-bars').innerHTML = counts.map(function (item) {
+        return '<div class="condition-row"><div class="condition-name">' + esc(item.name) + '</div><div class="bar"><span style="width:' + Math.round((item.count / max) * 100) + '%"></span></div><div class="condition-count">' + item.count + '</div></div>';
+      }).join('');
+    }
+
+    function renderEvidence(indicator, rows) {
+      var selectedRows = indicator ? indicator.evidence : rows.slice(0, 8);
+      document.getElementById('evidence-title').textContent = indicator ? 'Evidence Snapshot — ' + indicator.name : 'Evidence Snapshot — Recent Entries';
+      document.getElementById('evidence-list').innerHTML = selectedRows.slice(0, 8).map(function (row) {
+        return '<article class="evidence-item">' +
+          '<div class="evidence-top"><span>' + esc(row.date) + '</span><span>' + esc(row.condition) + '</span></div>' +
+          '<div class="evidence-signal">' + esc(row.signal) + '</div>' +
+          '<div class="evidence-context">' + esc(row.context) + '</div>' +
+          '<div class="quote">' + esc(row.evidence) + '</div>' +
+        '</article>';
+      }).join('') || '<p class="method">No matching entries.</p>';
+    }
+
+    function renderQuickControls(indicators, rows) {
+      document.getElementById('quick-controls').innerHTML = '<button class="active" data-id="recent">Recent evidence</button>' + indicators.map(function (indicator) {
+        return '<button data-id="' + esc(indicator.id) + '">' + esc(indicator.short) + '</button>';
+      }).join('');
+    }
+
+    function conditionTags(value) {
+      return String(value || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean).map(function (x) { return '<span class="tag">' + esc(x) + '</span>'; }).join('');
+    }
+
+    function renderFullLog(rows) {
+      document.getElementById('log-body').innerHTML = rows.map(function (row) {
         return '<tr>' +
-          '<td class="date" data-label="Date">' + esc(row.date) + '</td>' +
-          '<td class="signal" data-label="Signal">' + esc(row.signal) + '</td>' +
-          '<td data-label="Context">' + esc(row.context) + '</td>' +
-          '<td data-label="Evidence">' + esc(row.evidence) + '</td>' +
-          '<td class="condition" data-label="Condition alignment"><div class="condition-tags">' + conditionTags(row.condition) + '</div></td>' +
+          '<td class="date">' + esc(row.date) + '</td>' +
+          '<td class="signal">' + esc(row.signal) + '</td>' +
+          '<td>' + esc(row.context) + '</td>' +
+          '<td>' + esc(row.evidence) + '</td>' +
+          '<td><div class="condition-tags">' + conditionTags(row.condition) + '</div></td>' +
         '</tr>';
       }).join('');
-      document.getElementById('row-count').textContent = rows.length + ' entries';
-      document.getElementById('table-shell').hidden = false;
+    }
+
+    function bindInteractions(indicators, rows) {
+      function activate(id) {
+        var indicator = indicators.find(function (x) { return x.id === id; });
+        renderEvidence(indicator || null, rows);
+        document.querySelectorAll('[data-id]').forEach(function (btn) { btn.classList.toggle('active', btn.getAttribute('data-id') === id); });
+        if (id === 'recent') document.querySelector('[data-id="recent"]').classList.add('active');
+      }
+      document.addEventListener('click', function (event) {
+        var btn = event.target.closest('[data-id]');
+        if (!btn) return;
+        activate(btn.getAttribute('data-id'));
+      });
+      activate('recent');
+    }
+
+    function render(rows) {
+      var indicators = analyse(rows);
+      var counts = conditionCounts(rows);
+      var highest = indicators[0];
+      document.getElementById('row-count').textContent = rows.length + ' log entries';
+      document.getElementById('metric-total').textContent = rows.length;
+      document.getElementById('metric-range').textContent = 'Feb–May 2026';
+      document.getElementById('metric-highest').textContent = highest.score + '/10';
+      document.getElementById('metric-highest-note').textContent = highest.name + ' · ' + highest.count + ' entries';
+      document.getElementById('metric-labels').textContent = counts.length;
+      document.getElementById('summary-grid').hidden = false;
+      document.getElementById('dashboard-grid').hidden = false;
+      document.getElementById('evidence-panel').hidden = false;
+      document.getElementById('full-log').hidden = false;
+      document.getElementById('radar-box').innerHTML = radarSvg(indicators);
+      renderLegend(indicators, null);
+      renderConditionBars(counts);
+      renderQuickControls(indicators, rows);
+      renderFullLog(rows);
+      bindInteractions(indicators, rows);
     }
 
     fetch('mental-health-log.json', { cache: 'no-store' })
@@ -230,15 +450,12 @@
         return response.json();
       })
       .then(function (rows) {
-        if (!Array.isArray(rows) || rows.length === 0) {
-          document.getElementById('status').innerHTML = '<div class="empty">No log entries found.</div>';
-          return;
-        }
-        renderRows(rows);
+        if (!Array.isArray(rows) || !rows.length) throw new Error('No log entries found');
+        render(rows);
       })
       .catch(function (error) {
         document.getElementById('row-count').textContent = 'Log unavailable';
-        document.getElementById('status').innerHTML = '<div class="error">Unable to load the mental health signal log. ' + esc(error.message) + '</div>';
+        document.getElementById('status').innerHTML = '<section class="card error"><strong>Unable to load dashboard.</strong><br>' + esc(error.message) + '</section>';
       });
   </script>
 </body>
