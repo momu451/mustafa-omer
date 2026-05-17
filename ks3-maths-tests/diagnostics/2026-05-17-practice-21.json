@@ -1,0 +1,29 @@
+{
+  "id": "ks3-1779050299731-ipd9ga",
+  "submittedAt": "2026-05-17T20:38:19.732Z",
+  "paperTitle": "Year 7 Non-Calc Set 1 Practice #21",
+  "score": 18,
+  "total": 20,
+  "percent": 90,
+  "answered": 14,
+  "questionCount": 14,
+  "timeRemainingSeconds": 1040,
+  "fairInterpretation": "Clean diagnostic. Only error was negative substitution: treating -2x with x = -3 as subtracting 6 instead of adding 6.",
+  "wrongQuestions": [
+    {
+      "id": 9,
+      "topic": "Substitution",
+      "marks": 2,
+      "questionText": "If x = -3 and y = 7, work out 2y² − 2x.",
+      "selectedValue": "92",
+      "correctValue": "104",
+      "marksLost": 2,
+      "diagnosis": "Negative substitution/sign handling error. Correct calculation: 2 × 7² − 2 × (−3) = 98 + 6 = 104. Student likely did 98 − 6 = 92."
+    }
+  ],
+  "topicBreakdown": {
+    "Substitution": {"scored": 0, "available": 2, "lost": 2},
+    "All other assessed topics": {"scored": 18, "available": 18, "lost": 0}
+  },
+  "nextAction": "Target negative substitution with brackets before more mixed papers."
+}
